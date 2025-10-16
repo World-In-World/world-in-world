@@ -22,7 +22,7 @@ World-in-World is a unified **closed-loop** benchmark and toolkit for evaluating
 
 ## ✨ Overview
 
-![Overview](./assets/overview.png)
+![Overview](assets/overview.png)
 
 In this work, we propose World-in-World, which wraps generative <u>World</u> models <u>In</u> a closed-loop <u>World</u> interface to measure their practical utility for embodied agents. *We test whether generated worlds actually enhance embodied reasoning and task performance*—for example, helping an agent perceive the environment, plan and execute actions, and re-plan based on new observations *within such a closed loop*. Establishing this evaluation framework is essential for tracking genuine progress across the rapidly expanding landscape of visual world models and embodied AI.
 
