@@ -1,7 +1,7 @@
 <!-- # World-in-World -->
 
 <p align="center">
-  <img src="./assets/logo.svg" width="320" alt="World-in-World logo"/>
+  <img src="./assets/logo.svg" width="330" alt="World-in-World logo"/>
 </p>
 
 <div align="center">
@@ -31,9 +31,9 @@ In this work, we propose World-in-World, which wraps generative <u>World</u> mod
 ## 📦 Repository Status
 
 **Under construction**
-- [ ] Full documentation and tutorials for environment setup and evaluation.
-- [ ] Evaluation episodes, datasets, and checkpoints.
-- [ ] WM deployment instructions.
+- [ ] Full documentation and tutorials for environment setup and evaluation (before 10/19).
+- [ ] Evaluation episodes, datasets, and checkpoints (before 10/19).
+- [ ] WM deployment instructions (before 10/19).
 - [ ] Additional tools and post-training scripts.
 
 ---
@@ -54,7 +54,7 @@ Step-by-step examples for running closed-loop evaluation and post-training will 
 ---
 
 ## 📊 Results and Visualizations
-Quantitative tables and qualitative rollouts will be added with the paper materials (leaderboard, logs, and videos).
+Quantitative tables and qualitative rollouts will be added with the paper materials.
 
 ---
 
