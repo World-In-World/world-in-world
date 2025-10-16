@@ -1,7 +1,7 @@
 <!-- # World-in-World -->
 
 <p align="center">
-  <img src="./assets/logo.svg" width="270" alt="World-in-World logo"/>
+  <img src="./assets/logo.svg" width="320" alt="World-in-World logo"/>
 </p>
 
 <div align="center">
@@ -48,7 +48,7 @@ In this work, we propose World-in-World, which wraps generative <u>World</u> mod
 
 ### 3) Checkpoints
 
-## Quickstart
+## 🧰 Quickstart
 Step-by-step examples for running closed-loop evaluation and post-training will appear here with the initial release.
 
 ---
