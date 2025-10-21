@@ -1,0 +1,10 @@
+name: wan
+channels:
+  - defaults
+  - https://repo.anaconda.com/pkgs/main
+  - https://repo.anaconda.com/pkgs/r
+dependencies:
+  - pip
+  - python=3.10.16=he870216_1
+  - setuptools=78.1.1=py310h06a4308_0
+prefix: /scratch/ayuille1/jchen293/anaconda3/envs/wan

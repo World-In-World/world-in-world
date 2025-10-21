@@ -1,0 +1,8 @@
+name: wan22
+channels:
+  - defaults
+
+dependencies:
+  - python==3.10
+  - pip
+  - setuptools>=61.0

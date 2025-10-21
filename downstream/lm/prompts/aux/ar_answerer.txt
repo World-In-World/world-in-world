@@ -1,0 +1,6 @@
+You now have a composite visualization in your mind, created by stitching together imagined views from multiple perspectives around your current position.
+These perspectives are centered on the target object (enclosed within the red bounding box).
+
+You can use these synthesized views to:
+- Improve object identification accuracy.
+- Make more informed recognition decisions.

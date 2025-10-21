@@ -1,0 +1,46 @@
+run_name: nwm_cdit_xl
+
+# training setup
+results_dir: logs
+train: True
+batch_size: 16
+num_workers: 12
+model: CDiT-XL/2
+lr: 8e-5
+
+# normalization for the action space
+normalize: True
+grad_clip_val: 10.0
+context_size: 4
+
+# distance bounds for distance and action and distance predictions 
+distance:
+  min_dist_cat: -64
+  max_dist_cat: 64
+
+# action output params
+len_traj_pred: 64
+
+# dataset specific parameters
+image_size: 224
+datasets:
+  recon:
+    data_folder: data/recon
+    train: data/recon_data_splits/train/ # path to train folder with traj_names.txt
+    test: data/recon_data_splits/test/ # path to test folder with traj_names.txt
+    goals_per_obs: 4
+  tartan_drive:
+    data_folder: data/tartan
+    train: data_splits/tartan_drive/train/
+    test: data_splits/tartan_drive/test/
+    goals_per_obs: 4
+  sacson:
+    data_folder: data/sacson
+    train: data_splits/sacson/train
+    test: data_splits/sacson/test
+    goals_per_obs: 4
+  scand:
+    data_folder: data/scand
+    train: data_splits/scand/train
+    test: data_splits/scand/test
+    goals_per_obs: 4

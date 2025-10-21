@@ -1,0 +1,15 @@
+name: habitat
+channels:
+  - https://repo.anaconda.com/pkgs/main
+  - https://repo.anaconda.com/pkgs/r
+dependencies:
+  - cmake=3.14.0
+  - python=3.9
+  # - cudnn
+  # - pytorch
+  # - pytorch-cuda=12.1
+prefix: /scratch/ayuille1/jchen293/anaconda3/envs/habitat
+# 1.
+# conda env create --file downstream/api_models/env_config/train_svd.yaml
+# 2.
+# conda install habitat-sim==0.3.2 withbullet headless -c conda-forge -c aihabitat

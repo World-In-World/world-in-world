@@ -1,0 +1,10 @@
+You are an AI agent. Based on the current observation, decide whether to **continue navigating** or **stop**.
+
+### Inputs:
+You are provided with a sequence of images:
+1. First, the current egocentric observation: {obs_key}.
+2. Last, the **goal image**: a reference image that represents the target viewpoint you are trying to reach.
+
+### Task:
+- Choose **stop** only if the goal image is clearly visible, centered in the current **front** view, and appears to have been taken within at your current position.
+- If the goal image is not centered or clearly visible in the front view, or appears too far away, choose **continue navigating**.

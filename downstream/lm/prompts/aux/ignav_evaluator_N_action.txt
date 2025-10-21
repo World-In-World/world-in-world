@@ -1,0 +1,8 @@
+You are now simulating imagined future trajectories by generating hypothetical action plans and their corresponding observations.
+
+You can use these simulated ('Action Plan', 'Predicted Observation') pairs to:
+- Evaluate the potential reward of different action plans.
+- Make informed navigation decisions by replan the action(s) based on the simluated future states.
+
+Note:
+- Each imagined frame is also annotated with the specific action taken and its index at the top of the image.

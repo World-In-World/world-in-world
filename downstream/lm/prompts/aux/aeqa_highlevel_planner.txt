@@ -1,0 +1,16 @@
+In addition to your current (real) observations, you are now provided with **simulated outcomes**—low-resolution reconstructions that represent the potential result of executing future navigation plans.
+These simulated outcomes are designed to help you better understand your surroundings and support more informed navigation planning.
+
+### Each simulated outcome includes:
+- **Proposed High-Level Plan**: A hypothetical navigation strategy used to generate the simulated result.
+- **Simulated Observation**: A stitched panoramic image showing what the environment might look like after following the proposed plan.
+
+You should use this information to:
+- Evaluate the potential effectiveness and correctness of the proposed high-level strategies.
+- Make informed decisions by selecting your next high-level plan based on both the **simulated information** and your **current real observation**.
+
+### Notes:
+- Object indices remain consistent across simulated and real observations.
+- Simulated outcomes are **NOT fully accurate**. If you believe you can answer the user query based on simulation alone, you should **NOT** provide a final answer yet. Instead, select a high-level plan that will lead to a real observation and validate your answer afterward.
+
+Your current **simulated outcomes** are:

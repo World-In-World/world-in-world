@@ -11,12 +11,12 @@
   <a href="https://github.com/World-In-World/world-in-world" target="_blank"><img src="https://img.shields.io/badge/GitHub-Repo-darkgray?style=flat&logo=github" alt="GitHub badge"></a>
 </div>
 
-World-in-World is a unified **closed-loop** benchmark and toolkit for evaluating **visual world models (WMs)** by their **embodied utility** rather than image/video visuals alone. World-in-World provides (1) a unified online planning strategy that works with different WMs, (2) a unified action API that adapts to text, viewpoint, and low-level controls, and (3) a suite of tasks spanning Active Recognition (AR), Active Embodied QA (A-EQA), Image-Goal Navigation (ImageNav), and Robotic Manipulation.
+World-in-World is a unified **closed-loop** benchmark and toolkit for evaluating **visual world models (WMs)** by their **embodied utility** rather than only image or video appearance. World-in-World provides: (1) a unified online planning strategy that works with different WMs, (2) a unified action API that adapts to text, viewpoint, and low‑level controls, and (3) a task suite covering Active Recognition (AR), Active Embodied QA (A‑EQA), Image‑Goal Navigation (IGNav), and Robotic Manipulation.
 
 ---
 
 ## 📰 News
-- **2025-10-17**: Preprint released on arXiv. Landing page and repository initialized.
+- **2025-10-20**: Preprint released on arXiv. Landing page and repository initialized.
 
 ---
 
@@ -28,33 +28,70 @@ In this work, we propose World-in-World, which wraps generative <u>World</u> mod
 
 ---
 
-## 📦 Repository Status
+## 🚧 Repository Status
+
+The release will follow the to‑do list below and will be updated continuously.
 
 **Under construction**
-- [ ] Full documentation and tutorials for environment setup and evaluation (before 10/19).
-- [ ] Evaluation episodes, datasets, and checkpoints (before 10/19).
-- [ ] WM deployment instructions (before 10/19).
-- [ ] Additional tools and post-training scripts.
+- Full documentation and tutorials for environment setup and task evaluation.
+  - [X] AR, IGNav, AEQA
+  - [ ] Manipulation
+- [ ] WM post‑training instructions
+- [ ] Instructions to add a new WM to World‑in‑World
+- [ ] Additional tools and scripts
 
 ---
 
 ## 🚀 Getting Started
 
-### 1) Environment
+### 1) Checklist for running an evaluation
 
+For any task, complete the following steps in order.
 
-### 2) Datasets
+1. **Set up environments.**
+   - **AR, IGNav, AEQA:** set up Habitat‑sim as described in [01_setup_env.md: Environment for Habitat‑sim](docs/01_setup_env.md#environment-for-Habitat-sim).
+   - **Manipulation:** coming soon.
+2. **Download scene datasets.**
+   - **AR:** download MP3D as described in [02_evaluation_datasets.md: Common Steps](docs/02_evaluation_datasets.md#common-steps).
+   - **IGNav, AEQA:** download HM3D as described in [02_evaluation_datasets.md: Common Steps](docs/02_evaluation_datasets.md#common-steps).
+   - **Manipulation:** coming soon.
+3. **Download evaluation episodes.**
+   - **AR:** see [02_evaluation_datasets.md: Download AR evaluation episodes](docs/02_evaluation_datasets.md#download-AR-evaluation-episodes).
+   - **IGNav:** see [02_evaluation_datasets.md: Download IGNav evaluation episodes](docs/02_evaluation_datasets.md#download-ignav-evaluation-episodes).
+   - **AEQA:** see [02_evaluation_datasets.md: Download AEQA evaluation episodes](docs/02_evaluation_datasets.md#download-AEQA-evaluation-episodes).
+   - **Manipulation:** coming soon.
+4. **Deploy policies (VLM policy, heuristic policy, diffusion policy).**
+   - **AR:** deploy VLM policy as in [03_run_commands.md: VLM Deployment](docs/03_run_commands.md#VLM-Deployment). If you use a heuristic policy, you can skip the VLM step.
+   - **IGNav:** deploy VLM policy as in [03_run_commands.md: VLM Deployment](docs/03_run_commands.md#VLM-Deployment). If you use a heuristic policy, you can skip the VLM step.
+   - **AEQA:** deploy VLM policy as in [03_run_commands.md: VLM Deployment](docs/03_run_commands.md#VLM-Deployment).
+   - **Manipulation:** VLM and diffusion policy deployment coming soon.
+5. **Deploy other task‑related models if needed.**
+   - **AR:** deploy the SAM2 server as in [03_run_commands.md: SAM2 Deployment](docs/03_run_commands.md#SAM2-Deployment).
+   - **IGNav:** no extra task models.
+   - **AEQA:** deploy the Grounding SAM2 server as in [03_run_commands.md: Grounding SAM2 Deployment](docs/03_run_commands.md#Grounding-SAM2-Deployment).
+   - **Manipulation:** no extra task models.
+6. **Deploy the WM server.**
+   - **AR, IGNav, AEQA:** see [03_run_commands.md: World Model Deployment](docs/03_run_commands.md#World-Model-Deployment) and [WMs for Habitat‑sim Tasks](docs/03_run_commands.md#WMs-for-Habitat-sim-Tasks).
+   - **Manipulation:** see [03_run_commands.md: World Model Deployment](docs/03_run_commands.md#World-Model-Deployment) and [WMs for Manipulation Tasks](docs/03_run_commands.md#WMs-for-Manipulation-Tasks).
+7. **Run the evaluation script.**
+   - **AR, IGNav, AEQA:** see [03_run_commands.md: Run the Evaluation Scripts](docs/03_run_commands.md#Run-the-Evaluation-Scripts).
+   - **Manipulation:** coming soon.
+8. **Accumulate results.**
+   - **AR, IGNav, AEQA:** see [03_run_commands.md: Get the Evaluation Results](docs/03_run_commands.md#Get-the-Evaluation-Results).
+   - **Manipulation:** coming soon.
 
+After the first run, the environment and datasets are in place. For later runs, you usually only repeat **steps 4–8**.
+If you encounter any issue, please feel free to open an issue or contact us.
 
-### 3) Checkpoints
+### 2) Documentation structure
 
-## 🧰 Quickstart
-Step-by-step examples for running closed-loop evaluation and post-training will appear here with the initial release.
+- [01_setup_env.md](docs/01_setup_env.md): Environment setup for all environments used in the repo.
+- [02_evaluation_datasets.md](docs/02_evaluation_datasets.md): Datasets used for evaluation.
+- [03_run_commands.md](docs/03_run_commands.md): How to deploy servers and run evaluation scripts.
+- [04_post_training.md](docs/04_post_training.md): Post‑training configurations and checkpoints for different WMs.
+- [05_add_new_WM.md](docs/05_add_new_WM.md): How to add a new WM to World‑in‑World.
+- [09_WM_server_design.md](docs/09_WM_server_details.md): Design details of the WM server.
 
----
-
-## 📊 Results and Visualizations
-Quantitative tables and qualitative rollouts will be added with the paper materials.
 
 ---
 
@@ -68,3 +105,4 @@ If you find this work useful, please cite:
   journal = {arXiv preprint arXiv:XXXXX},
   year    = {2025}
 }
+```

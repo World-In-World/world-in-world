@@ -1,0 +1,30 @@
+You are now performing **low-level navigation action planning** for an indoor scene exploration task.
+
+### Inputs:
+You are provided with:
+1. An updated **RGB image with annotations**, representing the egocentric view of your current environment:
+    - Detected objects are annotated with contours and unique object indices with square text boxes.
+2. A **high-level navigation plan** represented as a dictionary with two fields:
+    - `'Action Plan'`: A description of the intended navigation strategy.
+    - `'Chosen Landmark'`: The object index of the selected landmark from the annotated image to approach, or `'None'` if no landmark is selected (in which case follow the `'Action Plan'` description).
+    - The current high-level plan is: **{high_level_plan}**
+
+Note all the provided images are in the format of {obs_key}.
+
+### Task:
+Your task is to:
+1. Analyze the visual scene and identify your position relative to the goal.
+2. Determine the next **low-level action(s)** to take in sequence, up to a maximum of **<{look_ahead_action_num}>** steps.
+
+### Constraints:
+- You must generate **≤ {look_ahead_action_num}** low-level actions.
+- The actions sequence should align with the goal descripted in **high-level `'Action Plan'` and `'Chosen Landmark'`**.
+- If the navigation goal or selected landmark in the high-level plan is either:
+  - not visible in the current observation, or
+  - already reached (i.e., centered, unobstructed, and close),
+  then your only action should be "stop".
+
+### Tips:
+- If the landmark object is partially occluded or obstructed, consider repositioning to bypass the obstacle before approaching it directly.
+- Choose actions that meaningfully move the agent toward the selected landmark or fulfill the intent of the high-level plan.
+- Maintain spatial awareness: understand the relationship between your egocentric view and the direction of the target.

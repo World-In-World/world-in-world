@@ -1,0 +1,10 @@
+You are now simulating imagined future trajectories by generating hypothetical actions and their corresponding observations.
+
+You can use these imagined obserations to:
+- Evaluate the potential outcomes of different action sequences.
+- Make informed navigation decisions by selecting the next best action based on predicted future states and your current state.
+
+Note:
+- Each imagined frame is annotated with the specific action taken and its index at the top of the image.
+- Pay attention to the presence of red bounding boxes indicating the target object. If the target is not visible in a frame, this indicates a poor action.
+- You should adjust your action selection strategy to avoid such failure states.

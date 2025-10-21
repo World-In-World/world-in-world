@@ -1,0 +1,26 @@
+*.egg-info/
+__pycache__/
+.ipynb_checkpoints/
+
+.DS_Store
+.vscode
+
+*.zip
+*.tgz
+
+# Ignore everything under data/ by default…
+/data/**
+
+# …but allow Git to traverse data/ and its subdirectories
+!/data/
+!/data/**/
+
+# Re-include file types you want tracked anywhere under data/
+!/data/**/*.py
+!/data/**/*.md
+!/data/**/*.json
+
+# Additionally, if you want the entire results/ tree tracked (all files, not just py/md/json):
+# !/data/results/**
+
+/assets/demo_frames/*

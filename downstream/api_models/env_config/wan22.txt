@@ -1,0 +1,14 @@
+opencv-python>=4.9.0.80
+transformers>=4.49.0
+tokenizers>=0.20.3
+accelerate>=1.1.1
+tqdm
+imageio[ffmpeg]
+easydict
+ftfy
+dashscope
+imageio-ffmpeg
+# flash_attn
+numpy>=1.23.5,<2
+git+https://github.com/Wan-Video/Wan2.2.git
+git+https://github.com/huggingface/diffusers.git@d8854b8#egg=diffusers  # diffusers-0.35.0.dev0
