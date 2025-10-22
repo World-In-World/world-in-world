@@ -6,8 +6,8 @@
 
 <div align="center">
   <a href="https://world-in-world.github.io/"><img src="https://img.shields.io/badge/🌐 Website-Visit-slateblue" alt="Website badge"></a>
-  <a href="https://arxiv.org/abs/"><img src="https://img.shields.io/badge/arXiv-Abstract-orange" alt="arXiv badge"></a>
-  <a href="https://huggingface.co"><img src="https://img.shields.io/badge/%F0%9F%A4%97%20Hugging%20Face-Page-goldenrod" alt="HF badge"></a>
+  <a href="https://arxiv.org/abs/2510.18135"><img src="https://img.shields.io/badge/arXiv-Abstract-orange" alt="arXiv badge"></a>
+  <a href="https://huggingface.co/datasets/zonszer/WIW_datasets/tree/main"><img src="https://img.shields.io/badge/%F0%9F%A4%97%20Hugging%20Face-Page-goldenrod" alt="HF badge"></a>
   <a href="https://github.com/World-In-World/world-in-world" target="_blank"><img src="https://img.shields.io/badge/GitHub-Repo-darkgray?style=flat&logo=github" alt="GitHub badge"></a>
 </div>
 
@@ -16,7 +16,7 @@ World-in-World is a unified **closed-loop** benchmark and toolkit for evaluating
 ---
 
 ## 📰 News
-- **2025-10-20**: Preprint released on arXiv. Landing page and repository initialized.
+- **2025-10-22**: Preprint released on arXiv. Landing page and repository initialized.
 
 ---
 
@@ -44,7 +44,16 @@ The release will follow the to‑do list below and will be updated continuously.
 
 ## 🚀 Getting Started
 
-### 1) Checklist for running an evaluation
+### 1) Documentation structure
+
+- [01_setup_env.md](docs/01_setup_env.md): Environment setup for all environments used in the repo.
+- [02_evaluation_datasets.md](docs/02_evaluation_datasets.md): Datasets used for evaluation.
+- [03_run_commands.md](docs/03_run_commands.md): How to deploy servers and run evaluation scripts.
+- [04_post_training.md](docs/04_post_training.md): Post‑training configurations and checkpoints for different WMs.
+- [05_add_new_WM.md](docs/05_add_new_WM.md): How to add a new WM to World‑in‑World.
+- [09_WM_server_design.md](docs/09_WM_server_details.md): Design details of the WM server.
+
+### 2) Checklist for running an evaluation
 
 For any task, complete the following steps in order.
 
@@ -83,26 +92,17 @@ For any task, complete the following steps in order.
 After the first run, the environment and datasets are in place. For later runs, you usually only repeat **steps 4–8**.
 If you encounter any issue, please feel free to open an issue or contact us.
 
-### 2) Documentation structure
-
-- [01_setup_env.md](docs/01_setup_env.md): Environment setup for all environments used in the repo.
-- [02_evaluation_datasets.md](docs/02_evaluation_datasets.md): Datasets used for evaluation.
-- [03_run_commands.md](docs/03_run_commands.md): How to deploy servers and run evaluation scripts.
-- [04_post_training.md](docs/04_post_training.md): Post‑training configurations and checkpoints for different WMs.
-- [05_add_new_WM.md](docs/05_add_new_WM.md): How to add a new WM to World‑in‑World.
-- [09_WM_server_design.md](docs/09_WM_server_details.md): Design details of the WM server.
-
-
 ---
 
 ## 📝 Citation
 
 If you find this work useful, please cite:
 ```bibtex
-@article{worldinworld2025,
-  title   = {World-in-World: <placeholder subtitle>},
-  author  = {First Author and Others},
-  journal = {arXiv preprint arXiv:XXXXX},
-  year    = {2025}
+@misc{zhang2025worldinworld,
+  title        = {World-in-World: World Models in a Closed-Loop World},
+  author       = {Zhang, Jiahan and Jiang, Muqing and Dai, Nanru and Lu, Taiming and Uzunoglu, Arda and Zhang, Shunchi and Wei, Yana and Wang, Jiahao and Patel, Vishal M. and Liang, Paul Pu and Khashabi, Daniel and Peng, Cheng and Chellappa, Rama and Shu, Tianmin and Yuille, Alan and Du, Yilun and Chen, Jieneng},
+  year         = {2025},
+  eprint       = {2510.18135},
+  archivePrefix= {arXiv},
 }
 ```

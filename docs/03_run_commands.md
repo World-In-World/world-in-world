@@ -134,6 +134,12 @@ Setting `--task_type=freetext` prevents the system from adding an extra template
 
 
 ### General pattern
+
+For all Habitat‑sim tasks, you need to activate the Habitat‑sim environment before running the evaluation scripts:
+```bash
+conda activate habitat025
+```
+
 ```bash
 CUDA_VISIBLE_DEVICES="0" bash downstream/scripts/init_solvers.sh <solver_module_name> <exp_id> <num_workers> "<vllm_hosts>" <WM_host> [extra_args...] &
 ```
