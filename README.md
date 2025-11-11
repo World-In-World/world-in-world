@@ -17,7 +17,7 @@ World-in-World is a unified **closed-loop** benchmark and toolkit for evaluating
 
 ## 📰 News
 - **2025-10-22**: Preprint released on arXiv. Landing page and repository initialized.
-- **2025-11-10**: Add post‑training instructions and data collection instructions in [data collection section](docs/04_post_training.md#collect-data-for-post-training).
+- **2025-11-10**: Add post‑training instructions and data collection instructions in [data collection section](docs/04_post_training.md#collect-data-for-posttraining).
 
 ---
 
