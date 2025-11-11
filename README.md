@@ -17,6 +17,7 @@ World-in-World is a unified **closed-loop** benchmark and toolkit for evaluating
 
 ## 📰 News
 - **2025-10-22**: Preprint released on arXiv. Landing page and repository initialized.
+- **2025-11-10**: Add post‑training instructions and data collection instructions in [data collection section](docs/04_post_training.md#collect-data-for-post-training).
 
 ---
 
@@ -49,7 +50,7 @@ The release will follow the to‑do list below and will be updated continuously.
 - [01_setup_env.md](docs/01_setup_env.md): Environment setup for all environments used in the repo.
 - [02_evaluation_datasets.md](docs/02_evaluation_datasets.md): Datasets used for evaluation.
 - [03_run_commands.md](docs/03_run_commands.md): How to deploy servers and run evaluation scripts.
-- [04_post_training.md](docs/04_post_training.md): Post‑training configurations and checkpoints for different WMs.
+- [04_post_training.md](docs/04_post_training.md): Post‑training configurations, data collection instructions, and checkpoints for different WMs.
 - [05_add_new_WM.md](docs/05_add_new_WM.md): How to add a new WM to World‑in‑World.
 - [09_WM_server_design.md](docs/09_WM_server_details.md): Design details of the WM server.
 

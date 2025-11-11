@@ -54,7 +54,7 @@ First you need to download the HM3D and MP3D scene datasets as described below.
 
 ---
 
-[↩︎ Back to Getting Started Checklist](../README.md#1-checklist-for-running-an-evaluation)
+[↩︎ Back to Getting Started Checklist](../README.md#2-checklist-for-running-an-evaluation)
 
 ---
 
@@ -124,6 +124,6 @@ data/AEQA/
 
 ---
 
-[↩︎ Back to Getting Started Checklist](../README.md#1-checklist-for-running-an-evaluation)
+[↩︎ Back to Getting Started Checklist](../README.md#2-checklist-for-running-an-evaluation)
 
 ---

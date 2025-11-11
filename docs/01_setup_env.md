@@ -85,7 +85,7 @@ where `512` matches the default depth image size in this codebase. If you need a
 
 ---
 
-[↩︎ Back to Getting Started Checklist](../README.md#1-checklist-for-running-an-evaluation)
+[↩︎ Back to Getting Started Checklist](../README.md#2-checklist-for-running-an-evaluation)
 
 ---
 
@@ -121,7 +121,7 @@ You can find our full package list at `downstream/api_models/env_config/vllmnew.
 
 ---
 
-[↩︎ Back to Getting Started Checklist](../README.md#1-checklist-for-running-an-evaluation)
+[↩︎ Back to Getting Started Checklist](../README.md#2-checklist-for-running-an-evaluation)
 
 ---
 
@@ -142,7 +142,7 @@ pip3 install ultralytics==8.3.118
 
 ---
 
-[↩︎ Back to Getting Started Checklist](../README.md#1-checklist-for-running-an-evaluation)
+[↩︎ Back to Getting Started Checklist](../README.md#2-checklist-for-running-an-evaluation)
 
 ---
 
@@ -168,6 +168,6 @@ We create separate conda environments for different WMs to avoid dependency conf
 
 ---
 
-[↩︎ Back to Getting Started Checklist](../README.md#1-checklist-for-running-an-evaluation)
+[↩︎ Back to Getting Started Checklist](../README.md#2-checklist-for-running-an-evaluation)
 
 ---

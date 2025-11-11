@@ -98,6 +98,9 @@ habitat_data/equi2cube/*
 !habitat_data/equi2cube/convert_equi2cube.py
 !habitat_data/equi2cube/convert_equi2per.py
 !habitat_data/equi2cube/__init__.py
+!habitat_data/HabitatRender.py
+!habitat_data/recoder.py
+!habitat_data/__init__.py
 
 # Training/experiments/scripts and misc dev helpers (not needed at runtime)
 PLOT/**
@@ -157,5 +160,6 @@ downstream/api_models/runway_model.py
 
 # scripts:
 scripts/**
+!scripts/data_collect.sh
 
 .vscode/**

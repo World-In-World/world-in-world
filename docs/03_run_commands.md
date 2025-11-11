@@ -26,7 +26,7 @@ CUDA_VISIBLE_DEVICES="0" bash downstream/scripts/vllm_dsai_intern.sh 8000 &
 
 ---
 
-[↩︎ Back to Getting Started Checklist](../README.md#1-checklist-for-running-an-evaluation)
+[↩︎ Back to Getting Started Checklist](../README.md#2-checklist-for-running-an-evaluation)
 
 ---
 
@@ -50,7 +50,7 @@ CUDA_VISIBLE_DEVICES="0,1" bash downstream/scripts/init_sam2_manager.sh 08.29_ex
 
 ---
 
-[↩︎ Back to Getting Started Checklist](../README.md#1-checklist-for-running-an-evaluation)
+[↩︎ Back to Getting Started Checklist](../README.md#2-checklist-for-running-an-evaluation)
 
 ---
 
@@ -70,7 +70,7 @@ CUDA_VISIBLE_DEVICES="0,1" bash downstream/scripts/init_gd_sam2_manager.sh 08.29
 
 ---
 
-[↩︎ Back to Getting Started Checklist](../README.md#1-checklist-for-running-an-evaluation)
+[↩︎ Back to Getting Started Checklist](../README.md#2-checklist-for-running-an-evaluation)
 
 ---
 
@@ -126,7 +126,7 @@ Setting `--task_type=freetext` prevents the system from adding an extra template
 
 ---
 
-[↩︎ Back to Getting Started Checklist](../README.md#1-checklist-for-running-an-evaluation)
+[↩︎ Back to Getting Started Checklist](../README.md#2-checklist-for-running-an-evaluation)
 
 ---
 
@@ -206,7 +206,7 @@ This opens `localhost:8010` on the **server** and forwards it back to `localhost
 
 ---
 
-[↩︎ Back to Getting Started Checklist](../README.md#1-checklist-for-running-an-evaluation)
+[↩︎ Back to Getting Started Checklist](../README.md#2-checklist-for-running-an-evaluation)
 
 ---
 
@@ -237,6 +237,6 @@ PYTHONPATH=. python downstream/evaluator.py   09.12_AEQA_wan21_1 --task AEQA --o
 
 ---
 
-[↩︎ Back to Getting Started Checklist](../README.md#1-checklist-for-running-an-evaluation)
+[↩︎ Back to Getting Started Checklist](../README.md#2-checklist-for-running-an-evaluation)
 
 ---

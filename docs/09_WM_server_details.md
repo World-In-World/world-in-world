@@ -54,6 +54,6 @@ This design collects jobs at the manager, dispatches them to available workers (
 
 ---
 
-[↩︎ Back to Getting Started Checklist](../README.md#1-checklist-for-running-an-evaluation)
+[↩︎ Back to Getting Started Checklist](../README.md#2-checklist-for-running-an-evaluation)
 
 ---
