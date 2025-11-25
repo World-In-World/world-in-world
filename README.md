@@ -9,6 +9,8 @@
   <a href="https://arxiv.org/abs/2510.18135"><img src="https://img.shields.io/badge/arXiv-Abstract-orange" alt="arXiv badge"></a>
   <a href="https://huggingface.co/datasets/zonszer/WIW_datasets/tree/main"><img src="https://img.shields.io/badge/%F0%9F%A4%97%20Hugging%20Face-Page-goldenrod" alt="HF badge"></a>
   <a href="https://github.com/World-In-World/world-in-world" target="_blank"><img src="https://img.shields.io/badge/GitHub-Repo-darkgray?style=flat&logo=github" alt="GitHub badge"></a>
+<a href="https://world-in-world.github.io/subpages/index.html"><img src="https://img.shields.io/badge/Demo-Visit-slateblue" alt="Demo Badge"></a>
+  
 </div>
 
 World-in-World is a unified **closed-loop** benchmark and toolkit for evaluating **visual world models (WMs)** by their **embodied utility** rather than only image or video appearance. World-in-World provides: (1) a unified online planning strategy that works with different WMs, (2) a unified action API that adapts to text, viewpoint, and low‑level controls, and (3) a task suite covering Active Recognition (AR), Active Embodied QA (A‑EQA), Image‑Goal Navigation (IGNav), and Robotic Manipulation.
