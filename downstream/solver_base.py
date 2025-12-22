@@ -94,6 +94,7 @@ class Solver:
                 if f"_{model}" in self.args.exp_id:
                     detected_models.append(model)
                     self.args.world_model_type = model_type
+                    self.args.world_model_name = model
                     print(f"World model type set to {model_type} based on experiment ID.")
 
         # Validation
@@ -653,6 +654,7 @@ class Solver:
         input_dict = {
             "b_action": batch_actions.numpy(),
             "save_dirs": save_dirs,
+            "request_model_name": self.args.world_model_name
         }
         if batch_images is not None:
             input_dict["b_image"] = batch_images.numpy()

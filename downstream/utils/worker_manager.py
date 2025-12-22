@@ -108,7 +108,7 @@ def check_inputdict(input_dict, server_type="world_model"):
     Check if the input_dict contains the expected keys and types.
     """
     if server_type == "world_model":
-        necessary_keys = ["b_action", "save_dirs"]
+        necessary_keys = ["b_action", "save_dirs", "request_model_name"]
     elif server_type == "sam2":
         necessary_keys = ["bbox_coords", "save_dirs", "pred_frames"]
     elif server_type == "gd_sam2":
@@ -749,7 +749,7 @@ def main():
             num_workers=args.num_workers,
             add_args=forward_args,
         )
-    elif args.worker_type in ["se3ds", "pathdreamer", "nwm", "hunyuan", "ltx", "wan21", "wan22", "cosmos", "svd", "gen4tur"] + \
+    elif args.worker_type in ["se3ds", "pathdreamer", "nwm", "hunyuan", "ltx", "wan21", "wan22", "cosmos20", "cosmos25", "svd", "gen4tur"] + \
                              ["FTcosmos", "FTltx", "FTwan21", "FTwan22", "FTwan22-14B"]:
         worker_cmds = get_worldmodel_workers_cmd(
             num_workers=args.num_workers,

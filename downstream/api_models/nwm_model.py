@@ -538,6 +538,8 @@ if __name__ == "__main__":
     parser.add_argument("--gt", type=int, default=0, help="set to 1 to produce ground truth evaluation set")
     args = parser.parse_args(sys.argv[1:-1])
     # args = parser.parse_args()
+    # add world_model_name of this inference script in args:
+    args.world_model_name = "nwm"
 
     args.rollout_fps_values = [int(fps) for fps in args.rollout_fps_values.split(',')]
 

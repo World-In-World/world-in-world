@@ -10,7 +10,7 @@
 # Args:
 #   1: exp_id        (string, e.g., 07.02_iGnav)
 #   2: num_workers   (int)
-#   3: worker_type   (string: igenex|igenex_manip|sam2|gd_sam2|se3ds|pathdreamer|nwm|hunyuan[_manip]|ltx[_manip]|wan[_manip])
+#   3: worker_type   (string: igenex|igenex_manip|sam2|gd_sam2|se3ds|pathdreamer|nwm|hunyuan[_manip]|ltx[_manip]|wan[_manip]) (search WORLD_MODEL_TYPES in this project all available options)
 #   4+: extra args forwarded verbatim to worker_manager.py
 #
 # CUDA_VISIBLE_DEVICES is honored and forwarded implicitly via env.

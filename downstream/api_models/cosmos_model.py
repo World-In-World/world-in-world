@@ -152,6 +152,12 @@ if __name__ == "__main__":
     args = parser.parse_args(sys.argv[1:-1])
     # args = parser.parse_args()
 
+    # add world_model_name of this inference script in args:
+    if args.ft_dir:
+        args.world_model_name = "FTcosmos"
+    else:
+        args.world_model_name = "cosmos20"
+
     if args.debug:
         args.width = 480
         args.height = 480

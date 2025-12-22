@@ -117,7 +117,7 @@ class Wan22I2VModel(DiffuserModel):
 
     def inference_batch(self, input_dict):
         b_action, save_dirs, return_objects, txt_list, img_list = (
-            process_input_dict(input_dict, self.args.task_type)
+            process_input_dict(input_dict, self.args.task_type, self.args.world_model_name)
         )
 
         # 3. run the pipeline
@@ -239,6 +239,8 @@ if __name__ == "__main__":
     else:
         pipe_fd = int(sys.argv[-1])
         args = parser.parse_args(sys.argv[1:-1])
+
+    args.world_model_name = "wan22"
 
     log_path = osp.join(
         args.log_dir,

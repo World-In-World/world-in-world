@@ -25,7 +25,7 @@ from json_repair import repair_json
 
 
 WORLD_MODEL_TYPES = {
-    "text": ["wan21", "ltx", "hunyuan", "nwm", "cosmos", "wan22", "svd", "gen4tur"],    # zero-shot models
+    "text": ["wan21", "ltx", "hunyuan", "nwm", "cosmos20", "cosmos25", "wan22", "svd", "gen4tur"],    # zero-shot models
     "FTtext": ["FTcosmos", "FTltx", "FTwan21", "FTwan22", "FTwan22-14B"],    # post-trained (finetuned) models
     "camera": ["se3ds", "pathdreamer"],    # zero-shot models
     "action": ["igen"],    # post-trained models

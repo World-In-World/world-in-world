@@ -125,6 +125,8 @@ if __name__ == "__main__":
         pipe_fd = int(sys.argv[-1])
         args = parser.parse_args(sys.argv[1:-1])
 
+    args.world_model_name = "svd"
+
     log_path = osp.join(
         args.log_dir,
         f"{args.exp_id}",

@@ -365,6 +365,7 @@ if __name__ == '__main__':
     # parser.add_argument("--weight_dtype", type=torch.dtype, default=torch.float16)
     args = parser.parse_args(sys.argv[1:-1])
     # args = parser.parse_args()
+    args.world_model_name = "se3ds"
 
     log_path = osp.join(args.log_dir, f"{args.exp_id}", f"se3ds_worker",f"worker{args.device}.log")
     setup_logger(log_path)

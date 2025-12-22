@@ -99,7 +99,7 @@ class WanModel(DiffuserModel):
 
     def inference_batch(self, input_dict):
         b_action, save_dirs, return_objects, txt_list, img_list = \
-            process_input_dict(input_dict, self.args.task_type)
+            process_input_dict(input_dict, self.args.task_type, self.args.world_model_name)
 
         pipe_images = []
         for prompt, img in zip(txt_list, img_list):
@@ -169,6 +169,16 @@ if __name__ == "__main__":
     else:
         pipe_fd = int(sys.argv[-1])
         args = parser.parse_args(sys.argv[1:-1])
+
+    # add world_model_name of this inference script in args:
+    if "wan2.1" in args.model_id:
+        args.world_model_name = "wan21"
+    elif "wan2.2" in args.model_id:
+        args.world_model_name = "wan22"
+    else:
+        raise ValueError(f"Unknown model_id: {args.model_id}")
+    if args.lora_path:
+        args.world_model_name = f"FT{args.world_model_name}"
 
     log_path = os.path.join(args.log_dir, args.exp_id, "FTwan_diffsynth_worker", f"worker{args.device}.log")
     setup_logger(log_path)

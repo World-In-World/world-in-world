@@ -120,6 +120,8 @@ if __name__ == "__main__":
     parser.add_argument("--debug", action="store_true")
     args = parser.parse_args(sys.argv[1:-1])
     # args = parser.parse_args()
+    # add world_model_name of this inference script in args:
+    args.world_model_name = "hunyuan"
 
     if args.debug:
         args.width = 480

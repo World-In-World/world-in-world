@@ -160,6 +160,7 @@ if __name__ == "__main__":
     args = build_argparser().parse_args(sys.argv[1:-1])
     # For debug:
     # args = build_argparser().parse_args()
+    args.world_model_name = "pathdreamer"
 
     args.structure_ckpt = osp.join(args.ckpt_path, "structure_gen_ckpt")
     args.image_ckpt     = osp.join(args.ckpt_path, "image_gen_ckpt")

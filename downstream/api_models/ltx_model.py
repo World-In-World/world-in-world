@@ -147,6 +147,11 @@ if __name__ == "__main__":
     parser.add_argument("--debug", action="store_true")
     args = parser.parse_args(sys.argv[1:-1])
     # args = parser.parse_args()
+    # add world_model_name of this inference script in args:
+    if args.ft_dir:
+        args.world_model_name = "FTltx"
+    else:
+        args.world_model_name = "ltx"
 
     if args.debug:
         test_sample(args)

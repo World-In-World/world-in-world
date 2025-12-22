@@ -182,10 +182,11 @@ def maybe_compile(mod: torch.nn.Module):
         return mod
 
 ###### For processing the input_dict and output_dict of models ######
-def process_input_dict(input_dict, task_type, return_as_paths=False):
+def process_input_dict(input_dict, task_type, world_model_name, return_as_paths=False):
     """
     Process the input_dict to extract b_action, save_dirs, return_objects, txt_list, img_list.
     """
+    assert input_dict["request_model_name"] == world_model_name, f"request_model_name: {input_dict['request_model_name']} does not match deployed world_model_name: {world_model_name}"
     b_action, save_dirs, b_image, return_objects = parse_input_data(input_dict)
 
     # 1. process the input data - PIL images:
@@ -201,7 +202,7 @@ def parse_input_data(input_dict):
     b_action = input_dict["b_action"]
     save_dirs = input_dict["save_dirs"]
     b_image = input_dict.get("b_image", None)
-    return_objects = "return_objects" in input_dict
+    return_objects = "return_objects" in input_dict and input_dict["return_objects"]
     return b_action,save_dirs,b_image,return_objects
 
 def prepare_image_list(save_dirs, b_image, return_as_paths):
@@ -264,7 +265,7 @@ class DiffuserModel(ABC):
 
     def inference_batch(self, input_dict):
         b_action, save_dirs, return_objects, txt_list, img_list = (
-            process_input_dict(input_dict, self.args.task_type)
+            process_input_dict(input_dict, self.args.task_type, self.args.world_model_name)
         )
 
         # 3. run the pipeline

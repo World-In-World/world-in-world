@@ -22,7 +22,7 @@ import numpy as np
 from torchvision import transforms
 from utils.logger import setup_logger
 from downstream.utils.worker_manager import worker_main
-from downstream.api_models import DiffuserModel, images_to_tensor, process_input_dict, process_output_dict
+from downstream.api_models import DiffuserModel, images_to_tensor
 from diffusers.utils import load_image
 import json
 
@@ -166,6 +166,8 @@ if __name__ == "__main__":
     else:
         pipe_fd = int(sys.argv[-1])
         args = parser.parse_args(sys.argv[1:-1])
+
+    args.world_model_name = "wan22"
 
     log_path = os.path.join(args.log_dir, f"{args.exp_id}", "wan22_ti2v_worker", f"worker{args.device}.log")
     setup_logger(log_path)

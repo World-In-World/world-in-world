@@ -194,6 +194,7 @@ if __name__ == "__main__":
     parser.add_argument("--debug", action="store_true")
     args = parser.parse_args(sys.argv[1:-1])
     # args = parser.parse_args()
+    args.world_model_name = "wan21"
 
     # if args.debug:
     #     test_sample(args)

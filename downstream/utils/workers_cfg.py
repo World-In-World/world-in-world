@@ -28,7 +28,7 @@ COMMON_ARGS = dict(
             "--action_input_channel=14",
             "--task_type=navigation",
         ],
-        "cosmos_worker": [
+        "cosmos20_worker": [
             "/data/username2/conda/miniconda3/envs/cosmos-predict2/bin/python",
             "downstream/api_models/cosmos_model.py",
         ],
@@ -105,7 +105,7 @@ COMMON_ARGS = dict(
             "/data/username2/conda/miniconda3/envs/wan/bin/python",
             "downstream/api_models/wan_model.py",
         ],
-        "cosmos_worker": [
+        "cosmos20_worker": [
             "/data/username2/conda/miniconda3/envs/cosmos-predict2/bin/python",
             "downstream/api_models/cosmos_model.py",
         ],
@@ -139,8 +139,8 @@ COMMON_ARGS = dict(
             "/weka/scratch/username4/username5/anaconda3/envs/cosmos-predict2/bin/python",
             "downstream/api_models/svd_model.py",
         ],
-        "cosmos_worker": [
-            "/weka/scratch/username4/username5/anaconda3/envs/cosmos-predict2/bin/python",
+        "cosmos20_worker": [
+            "/scratch/username4/username4/software/miniconda3/envs/cosmos-predict2/bin/python",
             "downstream/api_models/cosmos_model.py",
         ],
         "FTcosmos_worker": [
