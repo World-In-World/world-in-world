@@ -48,6 +48,7 @@ pip install --upgrade \
   tenacity==9.0.0 \
   pyequilib==0.5.8 \
   open3d==0.18.0 \
+  openai \
   gdown
 
 # Pin Habitat-Lab and Habitat-Baselines to the commit we used before
