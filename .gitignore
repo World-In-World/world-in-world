@@ -77,7 +77,7 @@ downstream/README.md
 downstream/scripts/vllm.sh
 
 # Evaluation assets: project has a dedicated /evaluation tree; exclude wholesale
-evaluation/**
+# evaluation/**
 
 # Collect bbox helpers: keep only what solvers import
 collect_bbox/*
@@ -93,6 +93,7 @@ data_filtering/*
 habitat_data/*
 !habitat_data/config_utils.py
 !habitat_data/habitat_util.py
+!habitat_data/HabitatRender.py
 !habitat_data/equi2cube/
 habitat_data/equi2cube/*
 !habitat_data/equi2cube/convert_equi2cube.py

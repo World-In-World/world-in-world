@@ -41,6 +41,7 @@ from downstream.solver_base import Solver, build_common_arg_parser, launch_multi
 from utils.util import is_empty
 from downstream.utils.util import get_distance, calc_traj_distance
 from habitat_data.equi2cube import convert_equi2per
+from evaluation.FVD.cal_4metrics import calculate_lpips
 
 
 class IGSolver(Solver):
@@ -124,6 +125,7 @@ class IGSolver(Solver):
         self.set_world_model_type()
 
         self.use_heur = use_heur
+        self.use_LPIPS_reward = args.use_LPIPS_reward
         self.query_num = 3
         self.look_ahead_action_num = 5      #range (1, igenex_n_frame-1)
         self.igenex_n_frame = 14
@@ -377,9 +379,14 @@ class IGSolver(Solver):
                     st, position, rotation, ith_decision, # fmt: skip
                 )
 
-            stop_flag, position, rotation, st = self._take_step_and_recognize(
-                datum, sim, ith_decision, st, position, rotation, # fmt: skip
-            )
+            if self.use_LPIPS_reward:
+                stop_flag, position, rotation, st = self._take_step_and_recognize_LPIPS(
+                    datum, sim, ith_decision, st, position, rotation, # fmt: skip
+                )
+            else:
+                stop_flag, position, rotation, st = self._take_step_and_recognize(
+                    datum, sim, ith_decision, st, position, rotation, # fmt: skip
+                )
             st.update_position_traj((position, rotation))
 
             st = self.clean_cache(st)
@@ -438,23 +445,8 @@ class IGSolver(Solver):
         3) Fetch & perform next move.
         4) Update 'st' with new row/action.
         """
-        stop_flag = False
-
-        # 1) Fetch recognition answer
-        answer, answer_value = self.fetch_recognize_answer(
-            datum, sim,
-            st, ith_action,
-            # self.answerer,
-            answerer=None,
-        )
-        st.add_answer(answer, answer_value)  # auto-update best answer
-
-        # 2) Possibly update best answer
-        is_done = ("stop" in answer.lower())
-        accmulate_action_len = sum(len(sublist) for sublist in st.get_action_traj())
-        if is_done or accmulate_action_len >= self.max_action_num:
-            stop_flag = True
-            st.set_best_answer(is_done)
+        # 1) check whether to stop
+        stop_flag = self.check_for_completion(datum, sim, ith_action, st)
 
         # 3) Fetch the next action & perform the move (only if not stopping yet)
         if not stop_flag:
@@ -492,6 +484,116 @@ class IGSolver(Solver):
             st.record_past_action(action_seqs_u[:executed_len])
 
         return stop_flag, position, rotation, st
+
+    def check_for_completion(self, datum, sim, ith_action, st):
+        stop_flag = False
+
+        # 1) Fetch recognition answer
+        answer, answer_value = self.fetch_recognize_answer(
+            datum, sim,
+            st, ith_action,
+            # self.answerer,
+            answerer=None,
+        )
+        st.add_answer(answer, answer_value)  # auto-update best answer
+
+        # 2) Possibly update best answer
+        is_done = ("stop" in answer.lower())
+        accmulate_action_len = sum(len(sublist) for sublist in st.get_action_traj())
+        if is_done or accmulate_action_len >= self.max_action_num:
+            stop_flag = True
+            st.set_best_answer(is_done)
+        return stop_flag
+
+    def _take_step_and_recognize_LPIPS(
+        self,
+        datum, sim,
+        ith_action: int,
+        st: State,
+        position, rotation,
+    ) -> Tuple[bool, Any, Any, State]:
+        """
+        1) Fetch & update recognition answer in 'st'.
+        2) If recognition passes threshold, signal we should stop.
+        3) Fetch & perform next move.
+        4) Update 'st' with new row/action.
+        """
+        # 1) check whether to stop
+        stop_flag = self.check_for_completion(datum, sim, ith_action, st)
+
+        # 3) Fetch the next action & perform the move (only if not stopping yet)
+        if not stop_flag:
+            ith_action = ith_action + 1  # NOTE: ith_action for move starts from 1 not 0
+            action_seqs_u = self.fetch_action_by_LPIPS(st)
+
+            # perform the len_action - 1 in the action sequence:
+            executed_len = max(len(action_seqs_u) - 2, 1)
+            for action in action_seqs_u[:executed_len]:
+                position, rotation = self.perform_agent_move(
+                    sim, action,
+                )
+
+            # 4) Interact with the simulator
+            state, state_imgs = self.interact(
+                sim, position, rotation, datum, ith_action
+            )
+            # Add the new state row and record the action
+            st.add_new_state(state, state_imgs)
+            st.record_past_action(action_seqs_u[:executed_len])
+
+        return stop_flag, position, rotation, st
+
+    def fetch_action_by_LPIPS(self, st):
+        # Fetch data
+        goal_img = st.fetch_current_state_obs("goal_image").unsqueeze(0)  # [1, C, H, W]
+        origin_imagines = st.get_from_history(key="origin_imagine")[0]    # List[List[Tensor CxHxW]]
+        action_seq_candidates = st.get_from_history(key="origin_action_plan")[0]
+
+        # 1) Handle empty candidates; use first non-empty frame to set resolution
+        assert len(origin_imagines) > 0, "No candidate imaginations found"
+        valid_indices = [i for i, frames in enumerate(origin_imagines) if len(frames) > 0]
+        assert len(valid_indices) != 0
+
+        first_i = valid_indices[0]
+        tgt_h, tgt_w = origin_imagines[first_i][0].shape[-2], origin_imagines[first_i][0].shape[-1]
+        goal_img_resized = torch.nn.functional.interpolate(
+            goal_img, size=(tgt_h, tgt_w), mode='bilinear', align_corners=False
+        )  # [1, C, H, W]
+
+        # 2) Pad each valid candidate to the max length by repeating last frame
+        T_max = max(len(origin_imagines[i]) for i in valid_indices)
+        padded_videos = []
+        for i in valid_indices:
+            frames = origin_imagines[i]
+            if len(frames) < T_max:
+                frames = frames + [frames[-1]] * (T_max - len(frames))
+            padded_videos.append(torch.stack(frames, dim=0))  # [T_max, C, H, W]
+        gen_videos = torch.stack(padded_videos, dim=0)  # [B_valid, T_max, C, H, W]
+        B_valid, T = gen_videos.shape[0], gen_videos.shape[1]
+
+        # 3) Repeat the goal image for each frame and candidate
+        gt_videos = goal_img_resized.unsqueeze(0).repeat(B_valid, T, 1, 1, 1)
+
+        # 4) Use the shared calculate_lpips (expects [0,1] inputs)
+        lpips_result = calculate_lpips(
+            videos1=gt_videos,
+            videos2=gen_videos,
+            device="cpu",
+            only_final=True,
+        )
+        # 5) Per-candidate rewards from returned per-video LPIPS
+        per_video = lpips_result["per_video"]
+        rewards_map = {idx: 1.0 - float(v) for idx, v in zip(valid_indices, per_video)}
+        # Assign very low reward to empty candidates to avoid selection
+        for i, frames in enumerate(origin_imagines):
+            if len(frames) == 0:
+                rewards_map[i] = float('-inf')
+
+        # Pick best across all candidates
+        best_candidate_idx = max(rewards_map, key=rewards_map.get)
+        best_reward = rewards_map[best_candidate_idx]
+        print(f"best_candidate_idx: {best_candidate_idx} with reward: {best_reward:.4f}")
+        return action_seq_candidates[best_candidate_idx]
 
 
     def fetch_action_decision_vlm(
@@ -612,6 +714,13 @@ class IGSolver(Solver):
             save_dirs, rgbs_wo_bbox_all, actions_all,
         )
         st.add_to_recent_state(pred_save_paths, key=self.imagine_obs_key)
+        if self.use_LPIPS_reward:
+            st.clean_up_history(key="origin_imagine")
+            st.clean_up_history(key="origin_action_plan")
+            origin_imagine = [v[1:] for v in list(rgbs_wo_bbox_all.values())]  # remove the first frame
+            origin_action_plans = [v[1:] for v in list(actions_all.values())]  # remove the first action
+            st.add_to_recent_state(origin_imagine, key="origin_imagine")
+            st.add_to_recent_state(origin_action_plans, key="origin_action_plan")
         st.add_to_recent_state(
             [{f"Action Plan {i+1}": plan} for i, plan in enumerate(action_seqs_u_ori)],
             key=self.imagine_action_key,
@@ -731,6 +840,7 @@ if __name__ == "__main__":
     parser = build_common_arg_parser()
     # Task-specific options
     parser.add_argument("--use_heur", action="store_true", help="Use heuristic policy or not")
+    parser.add_argument("--use_LPIPS_reward", action="store_true", help="Use LPIPS metric as a reward model")
     parser.add_argument("--TTS_ratio", type=float, default=1.0, help="Probability of running forward_with_WM (0.1 means 10% probability)")
 
     args, unused_cli_tokens = parser.parse_known_args()
