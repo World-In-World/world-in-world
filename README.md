@@ -10,7 +10,6 @@
   <a href="https://huggingface.co/datasets/zonszer/WIW_datasets/tree/main"><img src="https://img.shields.io/badge/%F0%9F%A4%97%20Hugging%20Face-Page-goldenrod" alt="HF badge"></a>
   <a href="https://github.com/World-In-World/world-in-world" target="_blank"><img src="https://img.shields.io/badge/GitHub-Repo-darkgray?style=flat&logo=github" alt="GitHub badge"></a>
 <a href="https://world-in-world.github.io/subpages/index.html"><img src="https://img.shields.io/badge/Demo-Visit-slateblue" alt="Demo Badge"></a>
-  
 </div>
 
 World-in-World is a unified **closed-loop** benchmark and toolkit for evaluating **visual world models (WMs)** by their **embodied utility** rather than only image or video appearance. World-in-World provides: (1) a unified online planning strategy that works with different WMs, (2) a unified action API that adapts to text, viewpoint, and low‑level controls, and (3) a task suite covering Active Recognition (AR), Active Embodied QA (A‑EQA), Image‑Goal Navigation (IGNav), and Robotic Manipulation.
@@ -94,6 +93,22 @@ For any task, complete the following steps in order.
 
 After the first run, the environment and datasets are in place. For later runs, you usually only repeat **steps 4–8**.
 If you encounter any issue, please feel free to open an issue or contact us.
+
+---
+
+## 🏆 Submit Custom Results to the Leaderboard
+
+To submit new results to the leaderboard:
+
+1. **Update this repository.**
+   Fork/clone this repo, add your modifications (e.g., custom model inference script) and instructions for how we can reproduce the results, then open a pull request for review.
+
+2. **Update the website leaderboard.**
+   Fork/clone the website repo: https://github.com/World-In-World/World-In-World.github.io
+   Edit `subpages/leaderboard.html`: https://github.com/World-In-World/World-In-World.github.io/blob/main/subpages/leaderboard.html
+   Then open a pull request.
+
+We will review the submission and, once verified, we will merge the changes and update the leaderboard accordingly.
 
 ---
 
