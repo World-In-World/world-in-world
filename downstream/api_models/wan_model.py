@@ -2,6 +2,7 @@
 conda env create --file downstream/api_models/env_config/wan.yaml
 
 pip install -r downstream/api_models/env_config/wan.txt
+pip install flash_attn==2.7.4.post1 # install flash_attn at the second step
 """
 
 
