@@ -1,0 +1,27 @@
+defaults:
+  - /config          # load configs/config.yaml
+  - _self_
+
+env: vlm-igenex
+model_name: gpt-4o-mini
+model_type: remote
+down_sample_ratio: 1
+language_only: 0
+eval_sets: []
+chat_history: 0
+n_shots: 1
+multiview: 0
+detection_box: 1
+multistep: 0
+resolution: 500
+exp_name: 06.26_withWM_igen_debug
+visual_icl: 0
+tp: 1
+executed_action_per_step: 5
+use_last_action: False
+proposal_num: 4
+igenex_host: localhost:6010
+pred_img_size: 384
+mpc_mode: ranking  # "iterative" or "ranking"
+enable_path_obs:  False
+max_step: 15

@@ -1,0 +1,25 @@
+# configs/EB-Navigation.yaml
+defaults:
+  - /config          # load configs/config.yaml
+  - _self_
+  
+env: diff-base
+model_name: gpt-4o-mini
+model_type: remote
+down_sample_ratio: 1
+language_only: 1
+eval_sets: []
+chat_history: 0
+n_shots: 2
+multiview: 0
+detection_box: 1
+multistep: 0
+resolution: 500
+exp_name: 12.22_diffactor_debug
+visual_icl: 0
+tp: 1
+proposal_num: 1
+executed_action_per_step: 50
+use_last_action: False
+enable_path_obs: False
+max_step: 200
