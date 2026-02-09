@@ -147,6 +147,77 @@ pip3 install ultralytics==8.3.118
 
 ---
 
+## Environment for WIW-Manipulation
+
+Start the following procedure under `downstream/world-in-world-manip`.
+
+### Create conda environment and install PyTorch
+```bash
+conda create -n wow-manip python=3.9 -y
+conda activate wow-manip
+pip install torch==2.4.0 torchvision==0.19.0 torchaudio==2.4.0+cu121 --index-url https://download.pytorch.org/whl/cu121
+```
+
+### Install CoppeliaSim for physical simulation
+
+Remember to copy the following export commands to your `.bashrc` or `.zshrc` and replace `$(pwd)` with the absolute path to `downstream/world-in-world-manip`.
+
+```bash
+wget https://downloads.coppeliarobotics.com/V4_1_0/CoppeliaSim_Pro_V4_1_0_Ubuntu20_04.tar.xz
+tar -xf CoppeliaSim_Pro_V4_1_0_Ubuntu20_04.tar.xz
+rm CoppeliaSim_Pro_V4_1_0_Ubuntu20_04.tar.xz
+export COPPELIASIM_ROOT=$(pwd)/CoppeliaSim_Pro_V4_1_0_Ubuntu20_04
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$COPPELIASIM_ROOT
+export QT_QPA_PLATFORM_PLUGIN_PATH=$COPPELIASIM_ROOT
+```
+
+### Install PyRep and AMSolver
+
+You should be able to run evaluations with VLM proposer after this step.
+
+```bash
+cd wiw_manip/envs
+git clone https://github.com/stepjam/PyRep.git
+cd PyRep
+pip install -r requirements.txt
+pip install -e .
+cd ..
+cp simAddOnScript_PyRep.lua $COPPELIASIM_ROOT
+pip install -r requirements.txt
+pip install -e .
+cd ../..
+
+pip install -r requirements.txt # other required packages
+```
+
+### Install 3D-Diffuser-Actor (for diff-base and diff-igenex)
+
+```bash
+mkdir src
+cd src
+git clone https://github.com/nickgkan/3d_diffuser_actor.git
+pip install -e .
+cd ..
+pip install openai-clip transformers==4.47.1 peft==0.11.1 diffusers==0.11.1 huggingface-hub==0.25.0
+conda install dgl=2.4.0 -c dglteam/label/th24_cu121
+```
+
+### Configure the required paths
+
+Download checkpoints for 3D-Diffuser-Actor:
+
+- `insert_onto_square_peg`: https://drive.google.com/uc?export=download&id=1QTKzDZvRUh3pVi-0ui1TT-CW7jlwZc6V
+- `push_buttons`: https://drive.google.com/uc?export=download&id=1VZjtIEVdSVjpCYM824PKWTMXW6AcjQi8
+- `slide_block_to_color_target`: https://drive.google.com/uc?export=download&id=1XHKYOMj2D5txC8LZBzkWU38Xjo1i3Pv7
+
+Configure them in `wiw_manip/configs/paths.py`.
+
+---
+
+[↩︎ Back to Getting Started Checklist](../README.md#2-checklist-for-running-an-evaluation)
+
+---
+
 ## Environment for different WMs
 
 We create separate conda environments for different WMs to avoid dependency conflicts. Below are the environments used in our experiments for reference. Because many inference scripts use **diffusers**, it may be possible to reuse one environment across multiple WMs if dependencies are compatible.

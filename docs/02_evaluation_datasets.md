@@ -49,9 +49,6 @@ First you need to download the HM3D and MP3D scene datasets as described below.
      └── mp3d.scene_dataset_config.json
      ```
 
-### For RLbench based tasks (Manipulation)
-- coming soon...
-
 ---
 
 [↩︎ Back to Getting Started Checklist](../README.md#2-checklist-for-running-an-evaluation)

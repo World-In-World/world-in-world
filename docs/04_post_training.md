@@ -48,7 +48,7 @@ Note: The default turn angle is 22.5 degrees in `habitat_data/HabitatRender.py`.
 ## Tips for post‑training
 
 **Zero‑shot vs. post‑trained models**  
-Post‑trained world models (WMs) are fine‑tuned on task‑specific or domain‑specific data, whereas zero‑shot models rely solely on their pre‑training. In our codebase, post‑trained variants typically use the `FT` prefix in `<wm_type>` (e.g., `FTwan21`, `FTcosmos`).
+Post‑trained world models (WMs) are fine‑tuned on task‑specific or dom  ain‑specific data, whereas zero‑shot models rely solely on their pre‑training. In our codebase, post‑trained variants typically use the `FT` prefix in `<wm_type>` (e.g., `FTwan21`, `FTcosmos`).
 
 **Best practices:**
 - **Document your checkpoints:** Keep a short README alongside each checkpoint describing the training data, number of steps, hyperparameters, and license information.

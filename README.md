@@ -61,21 +61,23 @@ For any task, complete the following steps in order.
 
 1. **Set up environments.**
    - **AR, IGNav, AEQA:** set up Habitat‑sim as described in [01_setup_env.md: Environment for Habitat‑sim](docs/01_setup_env.md#environment-for-Habitat-sim).
-   - **Manipulation:** coming soon.
+   - **Manipulation:** set up wow-manip as described in [01_setup_env.md: Environment for WIW-Manipulation](docs/01_setup_env.md#environment-for-WIW-Manipulation)
 2. **Download scene datasets.**
    - **AR:** download MP3D as described in [02_evaluation_datasets.md: Common Steps](docs/02_evaluation_datasets.md#common-steps).
    - **IGNav, AEQA:** download HM3D as described in [02_evaluation_datasets.md: Common Steps](docs/02_evaluation_datasets.md#common-steps).
-   - **Manipulation:** coming soon.
+   - **Manipulation:** already exists in downstream/world-in-world-manip/wiw_manip/envs/vlm
 3. **Download evaluation episodes.**
    - **AR:** see [02_evaluation_datasets.md: Download AR evaluation episodes](docs/02_evaluation_datasets.md#download-AR-evaluation-episodes).
    - **IGNav:** see [02_evaluation_datasets.md: Download IGNav evaluation episodes](docs/02_evaluation_datasets.md#download-ignav-evaluation-episodes).
    - **AEQA:** see [02_evaluation_datasets.md: Download AEQA evaluation episodes](docs/02_evaluation_datasets.md#download-AEQA-evaluation-episodes).
-   - **Manipulation:** coming soon.
+   - **Manipulation:** already exists in downstream/world-in-world-manip/data
 4. **Deploy policies (VLM policy, heuristic policy, diffusion policy).**
    - **AR:** deploy VLM policy as in [03_run_commands.md: VLM Deployment](docs/03_run_commands.md#VLM-Deployment). If you use a heuristic policy, you can skip the VLM step.
    - **IGNav:** deploy VLM policy as in [03_run_commands.md: VLM Deployment](docs/03_run_commands.md#VLM-Deployment). If you use a heuristic policy, you can skip the VLM step.
    - **AEQA:** deploy VLM policy as in [03_run_commands.md: VLM Deployment](docs/03_run_commands.md#VLM-Deployment).
-   - **Manipulation:** VLM and diffusion policy deployment coming soon.
+   - **Manipulation:** 
+      - VLM policy: deploy VLM policy as in [03_run_commands.md: VLM Deployment](docs/03_run_commands.md#VLM-Deployment).
+      - Diffusion policy: already intergrated into evaluation pipeline, no need to deploy.
 5. **Deploy other task‑related models if needed.**
    - **AR:** deploy the SAM2 server as in [03_run_commands.md: SAM2 Deployment](docs/03_run_commands.md#SAM2-Deployment).
    - **IGNav:** no extra task models.
@@ -83,16 +85,18 @@ For any task, complete the following steps in order.
    - **Manipulation:** no extra task models.
 6. **Deploy the WM server.**
    - **AR, IGNav, AEQA:** see [03_run_commands.md: World Model Deployment](docs/03_run_commands.md#World-Model-Deployment) and [WMs for Habitat‑sim Tasks](docs/03_run_commands.md#WMs-for-Habitat-sim-Tasks).
-   - **Manipulation:** see [03_run_commands.md: World Model Deployment](docs/03_run_commands.md#World-Model-Deployment) and [WMs for Manipulation Tasks](docs/03_run_commands.md#WMs-for-Manipulation-Tasks).
+   - **Manipulation:** see [03_run_commands.md: World Model Deployment](docs/03_run_commands.md#World-Model-Deployment) and [WMs for Manipulation Tasks](docs/03_run_commands.md#WMs-for-Manipulation-Tasks). #!TODO: Here
 7. **Run the evaluation script.**
    - **AR, IGNav, AEQA:** see [03_run_commands.md: Run the Evaluation Scripts](docs/03_run_commands.md#Run-the-Evaluation-Scripts).
-   - **Manipulation:** coming soon.
+   - **Manipulation:** see [03_run_commands.md: Manip pattern](docs/03_run_commands.md#Manip-pattern).
 8. **Accumulate results.**
-   - **AR, IGNav, AEQA:** see [03_run_commands.md: Get the Evaluation Results](docs/03_run_commands.md#Get-the-Evaluation-Results).
-   - **Manipulation:** coming soon.
+   - **AR, IGNav, AEQA:** see [03_run_commands.md: Get evaluation results](docs/03_run_commands.md#Navigation-tasks).
+   - **Manipulation:** see [03_run_commands.md: Get evaluation results](docs/03_run_commands.md#Manipulation-tasks).
 
 After the first run, the environment and datasets are in place. For later runs, you usually only repeat **steps 4–8**.
 If you encounter any issue, please feel free to open an issue or contact us.
+
+P.S. if u have any question about the server deployment, you can also refer to [03_run_commands.md: Common questions](docs/03_run_commands.md#Common-questions) and [09_WM_server_design.md: WM Server Design Details](docs/09_WM_server_details.md#WM-Server-Design-Details) for troubleshooting.
 
 ---
 

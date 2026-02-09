@@ -116,7 +116,24 @@ CUDA_VISIBLE_DEVICES="0,1,2,3" bash downstream/scripts/init_worldmodel_manager.s
 - [05_WM_server_design](docs/05_WM_server_design.md) — design details of the WM server.
 
 ### WMs for Manipulation tasks
-coming soon...
+
+** For VLM planner: **
+Initialize a WM manager with 4 workers on GPUs 0–3:
+```bash
+CUDA_VISIBLE_DEVICES="0,1,2,3" bash downstream/scripts/init_worldmodel_manager.sh <exp_id> <num_workers> <wm_type> --task_type=manipulation
+```
+- `<exp_id>`: log directory `downstream/logs/<exp_id>/`.
+- `<num_workers>`: number of WM instances (workers). Workers are balanced across the listed GPUs.
+- `<wm_type>`: WM type to deploy (see supported values in [downstream/vlm.py](downstream/vlm.py#L27-L33)).
+
+** For diffusion planner: **
+Initialize a WM manager with 4 workers on GPUs 0–3:
+```bash
+CUDA_VISIBLE_DEVICES="0,1,2,3" bash downstream/scripts/init_worldmodel_manager.sh <exp_id> <num_workers> <wm_type>
+```
+- `<exp_id>`: log directory `downstream/logs/<exp_id>/`.
+- `<num_workers>`: number of WM instances (workers). Workers are balanced across the listed GPUs.
+- `<wm_type>`: WM type to deploy (supported values are `igenex_manip` and `cosmos_manip`).
 
 ### WMs for other tasks
 ```bash
@@ -177,6 +194,52 @@ Add the `--use_heur` flag. Example:
 CUDA_VISIBLE_DEVICES="0" bash downstream/scripts/init_solvers.sh downstream.solver_IGNav 09.11_IGNav_FTwan21_debug1 4 "localhost:8000" localhost:7000 --use_WM --use_heur &
 ```
 
+### Manip pattern
+
+For manipulation tasks, use `conda activate wow-manip`. All the following commands should run under `downstream/world-in-world-manip`.
+
+```bash
+CUDA_VISIBLE_DEVICES="0" bash scripts/run_manip.sh \
+    <solver_env> \
+    <exp_id> \
+    <model_name> \
+    <num_workers> \
+    <vllm_hosts> \
+    <igenex_host> \
+    [extra_args...] (optional)
+```
+- `<solver_env>`:
+    - `vlm-base`: VLM planner without world model
+    - `vlm-igenex`: VLM planner with world model
+    - `diff-base`: diffuser actor without world model
+    - `diff-igenex`: diffuser actor with world model
+- `<model_name>`: name of VLM used by the VLM planner (e.g., `Qwen/Qwen2.5-VL-72B-Instruct-AWQ`)
+- `<num_workers>`: number of parallel workers for evaluation
+- `<vllm_hosts>`: hostname and port for vLLM server (same format as other tasks, e.g., `localhost:8010`)
+- `<igenex_host>`: host for world model server (same format as other tasks, e.g., `localhost:6010`)
+
+**Example** for `vlm-base` with `Qwen2.5-VL-72B-Instruct-AWQ`, exp_id `09.12_qwen_base`, 1 worker, vLLM at `localhost:8010`, and world model at `localhost:6010`:
+```bash
+CUDA_VISIBLE_DEVICES="0" bash scripts/run_manip.sh \
+    vlm-base \
+    09.12_qwen_base \
+    Qwen/Qwen2.5-VL-72B-Instruct-AWQ \
+    1 \
+    "localhost:8010" \
+    "localhost:6010"
+```
+
+### Dataset generator example for manipulation tasks
+The following command generates 10 episodes of demos for each variation (120 in total) of the `push_buttons` task and stores them in `./temp`:
+```bash
+python wiw_manip/envs/tools/dataset_generator_NLP.py --save_path "./temp" --tasks "push_buttons" --episodes_per_variation 10 --variations -1
+```
+
+---
+
+[↩︎ Back to Getting Started Checklist](../README.md#2-checklist-for-running-an-evaluation)
+
+---
 
 ### Common questions
 
@@ -212,6 +275,8 @@ This opens `localhost:8010` on the **server** and forwards it back to `localhost
 
 ## Get evaluation results
 
+### Navigation tasks
+
 After starting an evaluation, running states are saved under `downstream/states/<exp_id>/` and logs under `downstream/logs/<exp_id>/`.
 
 To accumulate results across all workers (e.g., task success rate), from the repo root run:
@@ -230,9 +295,22 @@ To only check already‑saved partial results (without re‑running), use:
 ```bash
 PYTHONPATH=. python downstream/evaluator.py    <exp_id> --task <task_name> --only_check_exist
 ```
-**Examples:**
+**Example:**
 ```bash
 PYTHONPATH=. python downstream/evaluator.py   09.12_AEQA_wan21_1 --task AEQA --openai_key=<your_openai_api_key> --only_check_exist
+```
+
+### Manipulation tasks
+
+After finishing an evaluation, results are saved under `running/<solver_env>/<model_name>/<exp_id>` by tasks. To aggregate results from all tasks, run:
+```bash
+python wiw_manip/aggregate_results.py running/<solver_env>/<model_name>/<exp_id>
+```
+
+**Example:**
+```bash
+conda activate wow-manip
+python wiw_manip/aggregate_results.py running/vlm-base/Qwen2.5-VL-72B-Instruct-AWQ/09.12_qwen_base
 ```
 
 ---
