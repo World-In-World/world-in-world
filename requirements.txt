@@ -1,0 +1,25 @@
+numpy==1.26.4
+Pillow
+pyquaternion
+setuptools==75.6.0
+natsort
+opencv-python
+scipy
+open3d
+cffi==1.14.2
+hydra-core
+gymnasium
+imageio
+imageio[ffmpeg]
+ultralytics
+json_repair
+jaxtyping
+# for LLMs
+openai
+anthropic
+lmdeploy==0.8.0
+google-generativeai
+# for dataset_generator_NLP.py
+absl-py
+# for aggregate_results.py
+tabulate
