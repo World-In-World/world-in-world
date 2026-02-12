@@ -133,7 +133,7 @@ CUDA_VISIBLE_DEVICES="0,1,2,3" bash downstream/scripts/init_worldmodel_manager.s
 ```
 - `<exp_id>`: log directory `downstream/logs/<exp_id>/`.
 - `<num_workers>`: number of WM instances (workers). Workers are balanced across the listed GPUs.
-- `<wm_type>`: WM type to deploy (supported values are `igenex_manip` and `cosmos_manip`).
+- `<wm_type>`: WM type to deploy (e.g. `igenex_manip` (svd†)).
 
 ### WMs for other tasks
 ```bash
@@ -227,12 +227,6 @@ CUDA_VISIBLE_DEVICES="0" bash scripts/run_manip.sh \
     1 \
     "localhost:8010" \
     "localhost:6010"
-```
-
-### Dataset generator example for manipulation tasks
-The following command generates 10 episodes of demos for each variation (120 in total) of the `push_buttons` task and stores them in `./temp`:
-```bash
-python wiw_manip/envs/tools/dataset_generator_NLP.py --save_path "./temp" --tasks "push_buttons" --episodes_per_variation 10 --variations -1
 ```
 
 ---

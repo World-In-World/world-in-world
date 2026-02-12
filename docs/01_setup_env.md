@@ -149,12 +149,13 @@ pip3 install ultralytics==8.3.118
 
 ## Environment for WIW-Manipulation
 
-Start the following procedure under `downstream/world-in-world-manip`.
-
 ### Create conda environment and install PyTorch
 ```bash
-conda create -n wow-manip python=3.9 -y
-conda activate wow-manip
+cd downstream/world-in-world-manip
+
+conda create -n wow-manip1 python=3.9 -y
+conda activate wow-manip1
+pip install setuptools==75.6.0 
 pip install torch==2.4.0 torchvision==0.19.0 torchaudio==2.4.0+cu121 --index-url https://download.pytorch.org/whl/cu121
 ```
 
@@ -190,27 +191,34 @@ cd ../..
 pip install -r requirements.txt # other required packages
 ```
 
+If you meet anything like `qt.qpa.plugin: Could not find the Qt platform plugin "xcb"`, try `pip uninstall opencv-python opencv-python-headless` and `pip install opencv-python-headless==4.11.0.86`
+
 ### Install 3D-Diffuser-Actor (for diff-base and diff-igenex)
 
 ```bash
 mkdir src
 cd src
 git clone https://github.com/nickgkan/3d_diffuser_actor.git
+cd 3d_diffuser_actor
 pip install -e .
-cd ..
 pip install openai-clip transformers==4.47.1 peft==0.11.1 diffusers==0.11.1 huggingface-hub==0.25.0
 conda install dgl=2.4.0 -c dglteam/label/th24_cu121
+cd ../..
 ```
 
-### Configure the required paths
+### Configure the required ckpt files for 3D-Diffuser-Actor
 
-Download checkpoints for 3D-Diffuser-Actor:
+Download our pretrained checkpoints for 3D-Diffuser-Actor:
 
-- `insert_onto_square_peg`: https://drive.google.com/uc?export=download&id=1QTKzDZvRUh3pVi-0ui1TT-CW7jlwZc6V
-- `push_buttons`: https://drive.google.com/uc?export=download&id=1VZjtIEVdSVjpCYM824PKWTMXW6AcjQi8
-- `slide_block_to_color_target`: https://drive.google.com/uc?export=download&id=1XHKYOMj2D5txC8LZBzkWU38Xjo1i3Pv7
+```bash
+pip install -U gdown
 
-Configure them in `wiw_manip/configs/paths.py`.
+gdown "https://drive.google.com/uc?export=download&id=1QTKzDZvRUh3pVi-0ui1TT-CW7jlwZc6V" -O insert_onto_square_peg
+gdown "https://drive.google.com/uc?export=download&id=1VZjtIEVdSVjpCYM824PKWTMXW6AcjQi8" -O push_buttons
+gdown "https://drive.google.com/uc?export=download&id=1XHKYOMj2D5txC8LZBzkWU38Xjo1i3Pv7" -O slide_block_to_color_target
+```
+
+Then configure them in `downstream/world-in-world-manip/wiw_manip/configs/paths.py`.
 
 ---
 

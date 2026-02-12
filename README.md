@@ -19,6 +19,7 @@ World-in-World is a unified **closed-loop** benchmark and toolkit for evaluating
 ## 📰 News
 - **2025-10-22**: Preprint released on arXiv. Landing page and repository initialized.
 - **2025-11-10**: Add post‑training instructions and data collection instructions in [data collection section](docs/04_post_training.md#collect-data-for-posttraining).
+- **2026-02-09**: Add Manipulation task instructions and environment setup
 
 ---
 
@@ -37,10 +38,9 @@ The release will follow the to‑do list below and will be updated continuously.
 **Under construction**
 - Full documentation and tutorials for environment setup and task evaluation.
   - [X] AR, IGNav, AEQA
-  - [ ] Manipulation
-- [ ] WM post‑training instructions
+  - [X] Manipulation
+- [X] WM post‑training instructions
 - [ ] Instructions to add a new WM to World‑in‑World
-- [ ] Additional tools and scripts
 
 ---
 
@@ -76,8 +76,8 @@ For any task, complete the following steps in order.
    - **IGNav:** deploy VLM policy as in [03_run_commands.md: VLM Deployment](docs/03_run_commands.md#VLM-Deployment). If you use a heuristic policy, you can skip the VLM step.
    - **AEQA:** deploy VLM policy as in [03_run_commands.md: VLM Deployment](docs/03_run_commands.md#VLM-Deployment).
    - **Manipulation:** 
-      - VLM policy: deploy VLM policy as in [03_run_commands.md: VLM Deployment](docs/03_run_commands.md#VLM-Deployment).
-      - Diffusion policy: already intergrated into evaluation pipeline, no need to deploy.
+      - **VLM policy:** deploy the VLM policy as described in [03_run_commands.md: VLM Deployment](docs/03_run_commands.md#VLM-Deployment).
+      - **Diffusion policy:** after configuring the ckpt paths in [01_setup_env.md: Configure the required ckpt files for 3D-Diffuser-Actor](docs/01_setup_env.md#configure-the-required-ckpt-files-for-3d-diffuser-actor), no additional deployment is needed.
 5. **Deploy other task‑related models if needed.**
    - **AR:** deploy the SAM2 server as in [03_run_commands.md: SAM2 Deployment](docs/03_run_commands.md#SAM2-Deployment).
    - **IGNav:** no extra task models.
@@ -85,7 +85,7 @@ For any task, complete the following steps in order.
    - **Manipulation:** no extra task models.
 6. **Deploy the WM server.**
    - **AR, IGNav, AEQA:** see [03_run_commands.md: World Model Deployment](docs/03_run_commands.md#World-Model-Deployment) and [WMs for Habitat‑sim Tasks](docs/03_run_commands.md#WMs-for-Habitat-sim-Tasks).
-   - **Manipulation:** see [03_run_commands.md: World Model Deployment](docs/03_run_commands.md#World-Model-Deployment) and [WMs for Manipulation Tasks](docs/03_run_commands.md#WMs-for-Manipulation-Tasks). #!TODO: Here
+   - **Manipulation:** see [03_run_commands.md: World Model Deployment](docs/03_run_commands.md#World-Model-Deployment) and [WMs for Manipulation Tasks](docs/03_run_commands.md#WMs-for-Manipulation-Tasks).
 7. **Run the evaluation script.**
    - **AR, IGNav, AEQA:** see [03_run_commands.md: Run the Evaluation Scripts](docs/03_run_commands.md#Run-the-Evaluation-Scripts).
    - **Manipulation:** see [03_run_commands.md: Manip pattern](docs/03_run_commands.md#Manip-pattern).

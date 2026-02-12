@@ -3,7 +3,6 @@ Pillow
 pyquaternion
 setuptools==75.6.0
 natsort
-opencv-python
 scipy
 open3d
 cffi==1.14.2

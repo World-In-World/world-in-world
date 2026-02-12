@@ -42,13 +42,16 @@ Additional options and defaults are documented in `scripts/data_collect.sh`. For
 Note: The default turn angle is 22.5 degrees in `habitat_data/HabitatRender.py`. Some Habitat versions only support integer turn angles. If you hit an error, adjust the corresponding config type from integer to float in the Habitat config file (the error message points to the exact field).
 
 ### For RLBench‑based tasks (Manipulation)
-- coming soon...
 
+The following command generates 10 episodes of demos for each variation (120 in total) of the `push_buttons` task and stores them in `./temp`:
+```bash
+python wiw_manip/envs/tools/dataset_generator_NLP.py --save_path "./temp" --tasks "push_buttons" --episodes_per_variation 10 --variations -1
+```
 
 ## Tips for post‑training
 
 **Zero‑shot vs. post‑trained models**  
-Post‑trained world models (WMs) are fine‑tuned on task‑specific or dom  ain‑specific data, whereas zero‑shot models rely solely on their pre‑training. In our codebase, post‑trained variants typically use the `FT` prefix in `<wm_type>` (e.g., `FTwan21`, `FTcosmos`).
+Post‑trained world models (WMs) are fine‑tuned on task‑specific or domain‑specific data, whereas zero‑shot models rely solely on their pre‑training. In our codebase, post‑trained variants typically use the `FT` prefix in `<wm_type>` (e.g., `FTwan21`, `FTcosmos`).
 
 **Best practices:**
 - **Document your checkpoints:** Keep a short README alongside each checkpoint describing the training data, number of steps, hyperparameters, and license information.
