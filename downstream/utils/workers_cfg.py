@@ -68,7 +68,7 @@ COMMON_ARGS = dict(
         "genex_manip_worker": [
             "/data/username1/software/miniconda3/envs/instructnav1/bin/python",
             "eval_inference.py",
-            "--unet_path=outputs/07.13_manip3D_14f_10-50_absAct_noExBound-35frame/checkpoint-26000/unet",     # 08.19: new 5 tasks on RLbench
+            "--unet_path=outputs/07.13_manip3D_14f_10-50_absAct_noExBound-35frame/checkpoint-26000/unet",     # 08.19: new 4 tasks on RLbench
             "--svd_path=outputs/checkpoints/models--stabilityai--stable-video-diffusion-img2vid/snapshots/9cf024d5bfa8f56622af86c884f26a52f6676f2e",
             "--action_input_channel=10",
             "--task_type=manipulation",
@@ -154,10 +154,12 @@ COMMON_ARGS = dict(
         "genex_manip_worker": [
             "/scratch/username7/username8/anaconda3/envs/habitat/bin/python",
             "eval_inference.py",
-            "--unet_path=outputs/07.03_manip3D_14f_10-50_absAct_noExBound/seed_1/checkpoint-22000/unet",
+            "--unet_path=outputs/07.13_manip3D_14f_10-50_absAct_noExBound-35frame/checkpoint-26000/unet",     # 08.19: new 4 tasks on RLbench
             "--svd_path=checkpoints/models--stabilityai--stable-video-diffusion-img2vid/snapshots/9cf024d5bfa8f56622af86c884f26a52f6676f2e",
             "--action_input_channel=10",
             "--task_type=manipulation",
+            "--width=448",
+            "--height=448",
         ],
         "se3ds_worker": [
             "LD_LIBRARY_PATH='/weka/scratch/username7/username6/software/miniconda3/envs/se3ds/lib:$LD_LIBRARY_PATH'",
