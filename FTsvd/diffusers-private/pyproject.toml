@@ -1,0 +1,17 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "diffusers"
+version = "0.31.0+private"
+description = "Private fork of diffusers-0.31.0 with self-modifications (editable install)"
+requires-python = ">=3.9"
+
+# Keep dependencies empty for now to avoid pip changing your env.
+# You can add them later after it installs cleanly.
+dependencies = []
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["diffusers*"]

@@ -1,4 +1,4 @@
-# 🚧 Under construction!
+<!-- # 🚧 Under construction! -->
 # Post‑training: checkpoints and usage
 
 This document explains how to run **post‑trained** world models (WMs) inside World‑in‑World. If you are using **zero‑shot** models, see the deployment instructions in `03_run_commands.md` and the environment table in `01_setup_env.md`.
@@ -47,6 +47,11 @@ The following command generates 10 episodes of demos for each variation (120 in 
 ```bash
 python wiw_manip/envs/tools/dataset_generator_NLP.py --save_path "./temp" --tasks "push_buttons" --episodes_per_variation 10 --variations -1
 ```
+
+## Post‑training for action-conditioned SVD
+
+Here we provide some instructions for post‑training the action‑conditioned SVD (SVD†). For more details, see the readme in [FTsvd/README.md](FTsvd/README.md).
+
 
 ## Tips for post‑training
 
