@@ -22,7 +22,7 @@ COMMON_ARGS = dict(
     Host1={
         "genex_worker": [
             "/data/username1/software/miniconda3/envs/instructnav1/bin/python",
-            "eval_inference.py",
+            "FTsvd/eval_inference.py",
             "--unet_path=outputs/07.22_0.1D_uni_full_noFPSid_3acm_aug_NoiseA/seed_1_0722_213129/checkpoint-6000",
             "--svd_path=checkpoints/models--stabilityai--stable-video-diffusion-img2vid/snapshots/9cf024d5bfa8f56622af86c884f26a52f6676f2e",
             "--action_input_channel=14",
@@ -67,7 +67,7 @@ COMMON_ARGS = dict(
         ],
         "genex_manip_worker": [
             "/data/username1/software/miniconda3/envs/instructnav1/bin/python",
-            "eval_inference.py",
+            "FTsvd/eval_inference.py",
             "--unet_path=outputs/07.13_manip3D_14f_10-50_absAct_noExBound-35frame/checkpoint-26000/unet",     # 08.19: new 4 tasks on RLbench
             "--svd_path=outputs/checkpoints/models--stabilityai--stable-video-diffusion-img2vid/snapshots/9cf024d5bfa8f56622af86c884f26a52f6676f2e",
             "--action_input_channel=10",
@@ -119,7 +119,7 @@ COMMON_ARGS = dict(
         ],
         "genex_worker": [
             "/data/username2/conda/miniconda3/envs/habitat/bin/python",
-            "eval_inference.py",
+            "FTsvd/eval_inference.py",
             "--unet_path=outputs/07.22_0.1D_uni_full_noFPSid_3acm_aug_NoiseA/seed_1_0722_213129/checkpoint-6000",
             "--svd_path=outputs/checkpoints/models--stabilityai--stable-video-diffusion-img2vid/snapshots/9cf024d5bfa8f56622af86c884f26a52f6676f2e",
             "--action_input_channel=14",
@@ -129,7 +129,7 @@ COMMON_ARGS = dict(
     Host3={
         "genex_worker": [
             "/weka/scratch/username4/username5/anaconda3/envs/habitat/bin/python",
-            "eval_inference.py",
+            "FTsvd/eval_inference.py",
             "--unet_path=outputs/07.22_0.1D_uni_full_noFPSid_3acm_aug_NoiseA/seed_1_0722_213129/checkpoint-6000",
             "--svd_path=checkpoints/models--stabilityai--stable-video-diffusion-img2vid/snapshots/9cf024d5bfa8f56622af86c884f26a52f6676f2e",
             "--action_input_channel=14",
@@ -153,7 +153,7 @@ COMMON_ARGS = dict(
         ],
         "genex_manip_worker": [
             "/scratch/username7/username8/anaconda3/envs/habitat/bin/python",
-            "eval_inference.py",
+            "FTsvd/eval_inference.py",
             "--unet_path=outputs/07.13_manip3D_14f_10-50_absAct_noExBound-35frame/checkpoint-26000/unet",     # 08.19: new 4 tasks on RLbench
             "--svd_path=checkpoints/models--stabilityai--stable-video-diffusion-img2vid/snapshots/9cf024d5bfa8f56622af86c884f26a52f6676f2e",
             "--action_input_channel=10",
