@@ -48,6 +48,12 @@ The following command generates 10 episodes of demos for each variation (120 in 
 python wiw_manip/envs/tools/dataset_generator_NLP.py --save_path "./temp" --tasks "push_buttons" --episodes_per_variation 10 --variations -1
 ```
 
+---
+
+[↩︎ Back to Getting Started Checklist](../README.md#2-checklist-for-running-an-evaluation)
+
+---
+
 ## Post‑training for action-conditioned SVD
 
 Here we provide some instructions for post‑training the action‑conditioned SVD (SVD†). For more details, see the readme in [FTsvd/README.md](FTsvd/README.md).
@@ -70,7 +76,7 @@ Post‑trained world models (WMs) are fine‑tuned on task‑specific or domain�
 
 ---
 
-**Original notes kept for reference (not removed):**
+**Original notes:**
 
 To support more diffusers models, see the diffusers documentation: https://huggingface.co/docs/diffusers/en/api/pipelines.
 
