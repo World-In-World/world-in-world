@@ -117,10 +117,6 @@ Resume:
   - `--action_strategy`: `micro_cond` (default) or others supported by the code
 - **What gets trained (UNet)**
   - `--train_param_type`: e.g., `full` to train all UNet parameters
-- **Misc. training options**
-  - `--gradient_accumulation_steps`, `--learning_rate`, `--lr_scheduler`, `--lr_warmup_steps`
-  - `--gradient_checkpointing`, `--use_ema`, `--allow_tf32`
-  - `--enable_xformers_memory_efficient_attention` (if xformers is installed)
 
 ## Inference (world model server)
 
