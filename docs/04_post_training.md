@@ -56,7 +56,7 @@ python wiw_manip/envs/tools/dataset_generator_NLP.py --save_path "./temp" --task
 
 ## Post‑training for action-conditioned SVD
 
-Here we provide some instructions for post‑training the action‑conditioned SVD (SVD†). For more details, see the readme in [FTsvd/README.md](FTsvd/README.md).
+Here we provide some instructions for post‑training the action‑conditioned SVD (SVD†). For more details, see the readme in [FTsvd/README.md](../FTsvd/README.md).
 
 
 ## Tips for post‑training
