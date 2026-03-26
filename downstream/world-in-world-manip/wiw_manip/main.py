@@ -3,7 +3,7 @@ import hydra
 from omegaconf import DictConfig, OmegaConf
 import logging
 import yaml
-from wiw_manip.envs.eb_man_utils import VALID_TASKS, DIFF_VALID_TASKS
+from wiw_manip.envs.eb_man_utils import DIFF_VALID_TASKS
 
 logger = logging.getLogger("EB_logger")
 if not logger.hasHandlers():
@@ -57,7 +57,10 @@ def main(cfg: DictConfig) -> None:
     evaluator_class = get_evaluator(env_name)
     evaluator = evaluator_class(config)
     evaluator.check_config_valid()
-    evaluator.evaluate_main(VALID_TASKS if 'diff' not in env_name else DIFF_VALID_TASKS)
+    if 'diff' in env_name:
+        evaluator.evaluate_main(DIFF_VALID_TASKS)
+    else:
+        evaluator.evaluate_main()
     logger.info("Evaluation completed")
 
 if __name__ == "__main__":

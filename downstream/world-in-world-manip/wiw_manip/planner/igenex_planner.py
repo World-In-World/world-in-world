@@ -16,8 +16,6 @@ from wiw_manip.envs.eb_man_utils import (
 from collections import Counter
 from wiw_manip.planner.vlm_planner import VLMPlanner
 from wiw_manip.planner.utils.planner_utils import (
-    local_image_to_data_url,
-    template_manip,
     template_lang_manip,
     interpolate_7dof_pose,
     _get, _plan_to_key,
@@ -71,6 +69,7 @@ class IgenexPlanner(VLMPlanner):
         executed_action_per_step=1,
         proposal_num=2,
         igenex_host="localhost:6000",
+        wm_condition_mode="zero_shot_text",
         mpc_mode="ranking",  # "iterative" or "ranking"
         max_iterations=4,
         evaluator_examples=[],
@@ -98,6 +97,7 @@ class IgenexPlanner(VLMPlanner):
 
         self.proposal_num = proposal_num
         self.igenex_host = igenex_host
+        self.wm_condition_mode = wm_condition_mode
         self.mpc_mode = mpc_mode
         self.max_iterations = max_iterations
         self.img_height, self.img_width = pred_img_size, pred_img_size
@@ -116,17 +116,58 @@ class IgenexPlanner(VLMPlanner):
         self.reset()
 
     def set_world_model_type(self):
+        mode_raw = self.wm_condition_mode
+        mode = str(mode_raw).strip().lower()
+
+        # Prefer explicit configuration, but keep legacy behavior compatible.
+        if mode not in {"", "none", "null"}:
+            if mode in {"zero_shot_text", "zero-shot-text", "zero_shot", "text", "fttext"}:
+                # For this migration stage, both text / FTtext are routed through text-conditioned path.
+                self.world_model_type = "text"
+                logger.info(
+                    "World model condition mode: %s -> text-conditioned zero-shot WM",
+                    self.wm_condition_mode,
+                )
+                return
+
+            if mode in {"action", "action_conditioned", "action-conditioned"}:
+                raise NotImplementedError(
+                    "wm_condition_mode='action' is temporarily disabled for LIBERO migration. "
+                    "Please use wm_condition_mode='zero_shot_text'."
+                )
+
+            raise ValueError(
+                f"Unsupported wm_condition_mode: {self.wm_condition_mode}. "
+                "Supported: ['zero_shot_text'] (action-conditioned mode is temporarily disabled)."
+            )
+
+        # Legacy fallback: infer from exp_name keywords (keeps old architecture style).
         world_model_type = None
-        for type, models in WORLD_MODEL_TYPES.items():
+        exp_id = str(self.exp_id) if self.exp_id is not None else ""
+        for type_name, models in WORLD_MODEL_TYPES.items():
             for model in models:
-                if f"_{model}" in self.exp_id:
-                    world_model_type = type
-                    logger.info(f"World model type is set to {world_model_type}.")
+                if f"_{model}" in exp_id:
+                    world_model_type = type_name
+                    logger.info("World model type inferred from exp_name: %s", world_model_type)
                     break
-        if world_model_type is None:
-            logger.warning("World model type is not specified. Using default <igen>.")
-            world_model_type = "action"
-        self.world_model_type = world_model_type
+            if world_model_type is not None:
+                break
+
+        if world_model_type in {"text", "FTtext"}:
+            self.world_model_type = "text"
+            return
+
+        if world_model_type == "action":
+            raise NotImplementedError(
+                "Legacy exp_name inference resolved to action-conditioned WM, "
+                "which is temporarily disabled for LIBERO migration. "
+                "Please set wm_condition_mode=zero_shot_text or use a zero-shot model exp_name."
+            )
+
+        logger.warning(
+            "World model type is not specified/inferred. Defaulting to text-conditioned zero-shot WM."
+        )
+        self.world_model_type = "text"
 
     def reset(self):
         # at the beginning of the episode
@@ -139,7 +180,7 @@ class IgenexPlanner(VLMPlanner):
         }
         self.st = State(list(all_keys))
 
-    def gen_pred_image(self, curr_obs, obs_path, action_plans, text_plans, curr_pose):
+    def gen_pred_image(self, curr_obs, obs_path, action_plans, text_plans, curr_pose, task_variation):
         text_plans = [plan["language_plan"] for plan in text_plans]
         batch_action_plans = [get_continous_action_from_discrete_batch(plan) for plan in action_plans]
         B = len(batch_action_plans)
@@ -147,7 +188,7 @@ class IgenexPlanner(VLMPlanner):
         batch_action_plans_, anchor_idx_lists = self._construct_action_seqs(
             curr_pose, batch_action_plans, out_seq_len=14
         )
-        image: Float[Tensor, "B C H W"] = curr_obs.unsqueeze(0).repeat(B, 1, 1, 1)
+        image: Float[Tensor, "B C H W"] = curr_obs.unsqueeze(0).repeat(B, 1, 1, 1) 
         image: UInt8[Tensor, "B C H W"] = (image * 255.0).to(torch.uint8)  # convert to uint8
 
         # * 2. Generate frames for the all actions with batch
@@ -266,7 +307,11 @@ class IgenexPlanner(VLMPlanner):
             first_prompt, task_prompt = self.process_prompt_visual_icl(user_instruction, avg_obj_coord, prev_act_feedback=self.episode_act_feedback)
             if 'claude' in self.model_name or 'InternVL' in self.model_name or 'Qwen2-VL' in self.model_name or 'Qwen2.5-VL' in self.model_name:
                 task_prompt += "\n\n"
-                task_prompt = task_prompt + template_lang_manip if self.language_only else task_prompt + template_manip
+                task_prompt = (
+                    task_prompt + template_lang_manip
+                    if self.language_only
+                    else task_prompt + self._get_manip_template(task_variation)
+                )
             if len(self.episode_messages) == 0:
                 self.episode_messages = self.get_message_visual_icl(obs, first_prompt, task_prompt, task_variation)
             else:
@@ -286,7 +331,11 @@ class IgenexPlanner(VLMPlanner):
                 or "Qwen2-VL" in self.model_name or "Qwen2.5-VL" in self.model_name
             ):
                 task_prompt += "\n\n"
-                task_prompt = task_prompt + template_lang_genex_manip if self.language_only else task_prompt + template_manip
+                task_prompt = (
+                    task_prompt + template_lang_manip
+                    if self.language_only
+                    else task_prompt + self._get_manip_template(task_variation)
+                )
             if len(self.episode_messages) == 0:
                 self.episode_messages = self.get_revise_message(imagine_traj, action_traj, full_example_prompt, task_prompt, current_obs)
             else:
@@ -569,7 +618,7 @@ class IgenexPlanner(VLMPlanner):
             curr_obs_origin = st.fetch_current_state_obs(self.obs_origin_key)
             obs_path = st.get_from_history(self.obs_origin_key)[-1]
             pred_obs_paths = self.gen_pred_image(
-                curr_obs_origin, obs_path, revised_plans, revised_reasons, curr_pose,
+                curr_obs_origin, obs_path, revised_plans, revised_reasons, curr_pose, task_variation,
             )
             st.add_to_recent_state(
                 pred_obs_paths, self.imagine_obs_key, mode="extend"         #2

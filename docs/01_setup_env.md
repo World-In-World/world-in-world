@@ -193,6 +193,43 @@ pip install -r requirements.txt # other required packages
 
 If you meet anything like `qt.qpa.plugin: Could not find the Qt platform plugin "xcb"`, try `pip uninstall opencv-python opencv-python-headless` and `pip install opencv-python-headless==4.11.0.86`
 
+### Setup LIBERO backend with uv (recommended)
+
+If you want to run the `libero_object` / `libero_spatial` backend for manipulation, we recommend using a dedicated `uv` environment.
+
+From repository root:
+
+```bash
+cd /path/to/world-in-world
+git submodule update --init --recursive third_party/libero
+
+uv venv --python 3.8 downstream/world-in-world-manip/.venv-libero
+source downstream/world-in-world-manip/.venv-libero/bin/activate
+
+uv pip sync \
+  downstream/world-in-world-manip/requirements_libero.txt \
+  third_party/libero/requirements.txt \
+  --extra-index-url https://download.pytorch.org/whl/cu113 \
+  --index-strategy=unsafe-best-match
+
+uv pip install -e third_party/libero
+
+export PYTHONPATH=$PYTHONPATH:/path/to/world-in-world/third_party/libero:/path/to/world-in-world/downstream/world-in-world-manip
+export LIBERO_CONFIG_PATH=/path/to/world-in-world/.cache/libero
+```
+
+### Start LIBERO environment server
+
+After the setup above:
+
+```bash
+cd /path/to/world-in-world/downstream/world-in-world-manip
+source .venv-libero/bin/activate
+export PYTHONPATH=$PYTHONPATH:/path/to/world-in-world/third_party/libero:/path/to/world-in-world/downstream/world-in-world-manip
+export LIBERO_CONFIG_PATH=/path/to/world-in-world/.cache/libero
+bash scripts/run_libero_env_server.sh 127.0.0.1 8765
+```
+
 ### Install 3D-Diffuser-Actor (for diff-base and diff-igenex)
 
 ```bash

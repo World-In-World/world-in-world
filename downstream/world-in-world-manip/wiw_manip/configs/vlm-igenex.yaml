@@ -17,10 +17,11 @@ resolution: 500
 exp_name: 06.26_withWM_igen_debug
 visual_icl: 0
 tp: 1
-executed_action_per_step: 5
+executed_action_per_step: 6
 use_last_action: False
 proposal_num: 4
 igenex_host: localhost:6010
+wm_condition_mode: zero_shot_text
 pred_img_size: 384
 mpc_mode: ranking  # "iterative" or "ranking"
 enable_path_obs:  False

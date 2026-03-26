@@ -1,0 +1,17 @@
+numpy==1.22.4
+Pillow
+PyYAML
+scipy
+gymnasium
+importlib-metadata
+opencv-python-headless==4.11.0.86
+hydra-core==1.2.0
+matplotlib==3.5.3
+cloudpickle==2.1.0
+bddl==1.0.1
+robosuite==1.4.1
+mujoco==3.2.3
+ultralytics
+torch==1.11.0+cu113
+torchvision==0.12.0+cu113
+torchaudio==0.11.0+cu113

@@ -7,7 +7,11 @@ import copy
 import argparse
 import time
 from time import sleep
-from wiw_manip.evaluator.config.system_prompts import eb_manipulation_system_prompt
+from wiw_manip.evaluator.config.system_prompts import (
+    eb_manipulation_system_prompt,
+    libero_object_system_prompt,
+    libero_spatial_system_prompt,
+)
 # from wiw_manip.envs.EBManEnv import EBManEnv, EVAL_SETS, ValidEvalSets
 from wiw_manip.envs.eb_man_utils import (
     form_object_coord_for_input,
@@ -22,14 +26,19 @@ from wiw_manip.evaluator.config.eb_manipulation_example import (
 )
 from wiw_manip.main import logger
 from wiw_manip.planner.utils.visualize import visualize_ar_baseline
-from wiw_manip.planner.utils.planner_utils import _get
 from wiw_manip.envs.eb_man_utils import get_continous_action_from_discrete
-from pyrep.backend import sim
-from pyrep.const import ObjectType
 
 class Base_Evaluator():
     def __init__(self, config):
         pass
+
+    def _obs_to_mapping(self, obs):
+        if isinstance(obs, dict):
+            return copy.deepcopy(obs)
+        return vars(copy.deepcopy(obs))
+
+    def _manip_backend(self):
+        return self.config.get("manip_backend", "rlbench")
 
     def load_demonstration(self):
         pass
@@ -162,19 +171,30 @@ class Base_Evaluator():
             (   avg_obj_coord, all_avg_point_list,
                 camera_extrinsics_list, camera_intrinsics_list,
             ) = form_object_coord_for_input(
-                vars(copy.deepcopy(obs)), self.env.task_class, camera_views
+                self._obs_to_mapping(obs),
+                self.env.task_class,
+                camera_views,
+                backend=self._manip_backend(),
+                env=self.env,
             )
 
             if not self.config["language_only"]:
                 for i, img_path in enumerate(img_path_list):
                     if 'front_rgb' in img_path:
-                        img_path_list[i] = draw_xyz_coordinate(img_path, self.config['resolution'])
+                        img_path_list[i] = draw_xyz_coordinate(
+                            img_path,
+                            self.config['resolution'],
+                            backend=self._manip_backend(),
+                        )
             if self.config['detection_box'] and not self.config['language_only']:
                 img_path_list = draw_bounding_boxes(
                     img_path_list,
                     all_avg_point_list,
                     camera_extrinsics_list,
                     camera_intrinsics_list,
+                    backend=self._manip_backend(),
+                    env=self.env,
+                    camera_views=camera_views,
                 )
             if self.config['multistep']:
                 image_history.append(img_path_list[0])
@@ -217,7 +237,6 @@ class Base_Evaluator():
                     for action_single in actions[:executed_action_num]:
                         # action_single should be [7,]
                         obs, reward, done, info = self.env_step(action_single)  
-                        self.record_action_plan(obs, action_single)
                         logger.info(f"Executed action: {action_single}, Task success: {info['task_success']}")
                         logger.debug(f"reward: {reward}")
                         logger.debug(f"terminate: {done}\n")
@@ -234,19 +253,30 @@ class Base_Evaluator():
                 (   avg_obj_coord, all_avg_point_list,
                     camera_extrinsics_list, camera_intrinsics_list,
                 ) = form_object_coord_for_input(
-                    vars(copy.deepcopy(obs)), self.env.task_class, camera_views
+                    self._obs_to_mapping(obs),
+                    self.env.task_class,
+                    camera_views,
+                    backend=self._manip_backend(),
+                    env=self.env,
                 )
                 if not done:
                     if not self.config['language_only']:
                         for i, img_path in enumerate(img_path_list):
                             if 'front_rgb' in img_path:
-                                img_path_list[i] = draw_xyz_coordinate(img_path, self.config['resolution'])
+                                img_path_list[i] = draw_xyz_coordinate(
+                                    img_path,
+                                    self.config['resolution'],
+                                    backend=self._manip_backend(),
+                                )
                     if self.config['detection_box'] and not self.config['language_only']:
                         img_path_list = draw_bounding_boxes(
                             img_path_list,
                             all_avg_point_list,
                             camera_extrinsics_list,
                             camera_intrinsics_list,
+                            backend=self._manip_backend(),
+                            env=self.env,
+                            camera_views=camera_views,
                         )
                         if self.config["multistep"]:
                             if image_history[-1].split('.png')[0] in img_path_list[0]:
@@ -273,14 +303,6 @@ class Base_Evaluator():
             progress_bar.update()
         self.print_task_eval_results(filename="summary.json")
         # self.env.close()      # NOTE: not close env here to allow multiple evals w/o initializing env again
-
-    def record_action_plan(self, obs, action_single, post_fix=""):
-        gripper_pose = _get(obs, "gripper_pose").tolist()
-        gripper_open = _get(obs, "gripper_open")
-        action_plan_path = self.env.save_action_plan(
-            [action_single, {"gripper_states_aft_act": [gripper_pose, gripper_open]}],
-            post_fix=post_fix,
-        )
 
     # def evaluate_main(self):
     #     valid_eval_sets = self.config.get('eval_sets', ValidEvalSets)
@@ -333,10 +355,11 @@ class Base_Evaluator():
     #             f.write(str(self.config))
 
     def initialize_planner(self, ic_examples, task_name):
+        system_prompt = self._get_system_prompt(task_name)
         self.planner = VLMPlanner(
             model_name=self.model_name,
             model_type=self.config["model_type"],
-            system_prompt=eb_manipulation_system_prompt,
+            system_prompt=system_prompt,
             examples=ic_examples,
             n_shot=self.config["n_shots"],
             chat_history=self.config["chat_history"],
@@ -352,6 +375,13 @@ class Base_Evaluator():
             },
         )
 
+    def _get_system_prompt(self, task_name):
+        if self._manip_backend() == "libero" and str(task_name).startswith("libero_object"):
+            return libero_object_system_prompt
+        if self._manip_backend() == "libero" and str(task_name).startswith("libero_spatial"):
+            return libero_spatial_system_prompt
+        return eb_manipulation_system_prompt
+
     def check_config_valid(self):
         if self.config['multiview'] + self.config['multistep'] + self.config['visual_icl'] + self.config['chat_history'] > 1:
             raise ValueError("Currently, we only support one of multiview, multistep, visual_icl, chat_history feature at a time.")
@@ -361,3 +391,6 @@ class Base_Evaluator():
                 logger.warning("Language only mode should not have multiview or multistep enabled. Setting these arguments to False ...")
                 self.config['multiview'] = 0
                 self.config['multistep'] = 0
+        if self.config.get("manip_backend", "rlbench") == "libero" and self.config['multiview']:
+            logger.warning("LIBERO backend currently supports a single front view only. Setting multiview to False ...")
+            self.config['multiview'] = 0

@@ -1,7 +1,6 @@
 import os
 from typing import List
 import numpy as np
-from pyrep.objects import VisionSensor
 from ultralytics import YOLO
 import cv2
 from scipy.spatial.transform import Rotation
@@ -11,17 +10,29 @@ from scipy.spatial.transform import Rotation
 from typing import Optional, Sequence, Tuple
 
 SCENE_BOUNDS = np.array([-0.3, -0.5, 0.6, 0.7, 0.5, 1.6])
+LIBERO_SCENE_BOUNDS = np.array([-0.35, -0.35, -0.05, 0.35, 0.35, 0.85])
 ROTATION_RESOLUTION = 3
 VOXEL_SIZE = 100
 CAMERAS = ['front', 'left_shoulder', 'right_shoulder', 'wrist']
 USE_GENERAL_OBJECT_NAMES = True
-object_detection_model = YOLO("yolo11n.pt")
+object_detection_model = None
+
+
+def get_object_detection_model():
+    global object_detection_model
+    if object_detection_model is None:
+        object_detection_model = YOLO("yolo11n.pt")
+    return object_detection_model
 
 VALID_TASKS = [
     "slide_block_to_color_target",
     "insert_onto_square_peg",
     "push_buttons",
     "stack_cups",
+]
+LIBERO_VALID_TASKS = [
+    "libero_object",
+    "libero_spatial",
 ]
 DIFF_VALID_TASKS = [
     "slide_block_to_color_target",
@@ -84,10 +95,10 @@ def extract_obs(obs: Observation, target_obj=None, objects_name=None, use_wrist=
         }
 
 # From https://github.com/stepjam/RLBench/blob/master/rlbench/backend/utils.py
-def point_to_voxel_index(
-        point: np.ndarray):
-    bb_mins = np.array(SCENE_BOUNDS[0:3])[None]
-    bb_maxs = np.array(SCENE_BOUNDS[3:])[None]
+def point_to_voxel_index(point: np.ndarray, bounds=None):
+    bounds = SCENE_BOUNDS if bounds is None else np.asarray(bounds, dtype=np.float64)
+    bb_mins = np.array(bounds[0:3])[None]
+    bb_maxs = np.array(bounds[3:])[None]
     dims_m_one = np.array([VOXEL_SIZE] * 3)[None] - 1
     bb_ranges = bb_maxs - bb_mins
     res = bb_ranges / (np.array([VOXEL_SIZE] * 3) + 1e-12)
@@ -97,15 +108,77 @@ def point_to_voxel_index(
 
     return voxel_indicy.reshape(point.shape)
 
+
+def point_to_visual_voxel_index(point: np.ndarray, bounds=None):
+    # LIBERO uses the same voxel axis convention as world-to-voxel conversion.
+    # Keep this helper for compatibility with existing call sites.
+    return point_to_voxel_index(point, bounds=bounds).astype(np.int32).copy()
+
 def discrete_euler_to_quaternion(discrete_euler):
     euluer = (discrete_euler * ROTATION_RESOLUTION) - 180
     return Rotation.from_euler('xyz', euluer, degrees=True).as_quat()
 
 
-def get_continous_action_from_discrete_batch(discrete_actions: List[List[int]]):
-    return [get_continous_action_from_discrete(action) for action in discrete_actions]
+def get_continous_action_from_discrete_batch(discrete_actions: List[List[int]], bounds=None, flip_y=False):
+    return [get_continous_action_from_discrete(action, bounds=bounds, flip_y=flip_y) for action in discrete_actions]
 
-def get_continous_action_from_discrete(discrete_action):
+def describe_discrete_action_conversion(
+    discrete_action,
+    bounds=None,
+    flip_y=False,
+    zero_rotation_as_identity_wxyz=False,
+):
+    assert all(isinstance(x, (int, np.integer)) for x in discrete_action), "All elements in discrete_action must be integers"
+    bounds = SCENE_BOUNDS if bounds is None else np.asarray(bounds, dtype=np.float64)
+
+    raw_trans_indices = np.array(discrete_action[:3], dtype=np.int32)
+    env_trans_indices = raw_trans_indices.copy()
+    if flip_y:
+        env_trans_indices[1] = (VOXEL_SIZE - 1) - env_trans_indices[1]
+
+    res = (bounds[3:] - bounds[:3]) / VOXEL_SIZE
+    attention_coordinate = bounds[:3] + res * env_trans_indices + res / 2
+    is_gripper_open = int(discrete_action[-1])
+
+    debug = {
+        "raw_discrete_action": [int(x) for x in discrete_action],
+        "raw_trans_indices_xyz": raw_trans_indices.astype(int).tolist(),
+        "env_trans_indices_xyz": env_trans_indices.astype(int).tolist(),
+        "flip_y_applied": bool(flip_y),
+        "scene_bounds": bounds.astype(float).tolist(),
+        "voxel_resolution_world": res.astype(float).tolist(),
+        "attention_coordinate_world": attention_coordinate.astype(float).tolist(),
+        "discrete_gripper": int(is_gripper_open),
+    }
+
+    if len(discrete_action) == 7:
+        rot_and_grip_indicies = np.array(discrete_action[3:6], dtype=np.int32)
+        if zero_rotation_as_identity_wxyz and np.all(rot_and_grip_indicies == 0):
+            # Internal convention is [qx, qy, qz, qw] (xyzw). Identity is [0,0,0,1].
+            quat = np.array([0.0, 0.0, 0.0, 1.0], dtype=np.float64)
+            debug["rotation_override"] = "all-zero-rpy -> identity quaternion [0,0,0,1] in xyzw"
+        else:
+            quat = discrete_euler_to_quaternion(rot_and_grip_indicies)
+        continuous_action = np.concatenate([attention_coordinate, quat, [is_gripper_open]])
+        debug["discrete_rotation_rpy"] = rot_and_grip_indicies.astype(int).tolist()
+        debug["target_quaternion_xyzw"] = quat.astype(float).tolist()
+    elif len(discrete_action) == 4:
+        continuous_action = np.concatenate([attention_coordinate, [is_gripper_open]])
+    elif len(discrete_action) == 8:
+        continuous_action = np.array(discrete_action)
+    else:
+        raise ValueError("Wrong length of discrete action")
+
+    debug["continuous_action"] = np.asarray(continuous_action, dtype=np.float64).tolist()
+    debug["conversion_logic"] = (
+        "world_pos = bounds_min + voxel_index * voxel_size + voxel_size/2; "
+        "for LIBERO visual voxels we keep xyz indices consistent with world-to-voxel conversion; "
+        "rotation bins are converted with discrete_euler_to_quaternion; "
+        "gripper uses planner convention 1=open, 0=close."
+    )
+    return np.asarray(continuous_action), debug
+
+def get_continous_action_from_discrete(discrete_action, bounds=None, flip_y=False):
     """
     Converts a discrete action representation into a continuous action representation.
 
@@ -118,51 +191,47 @@ def get_continous_action_from_discrete(discrete_action):
         - Quaternion representing rotation (qx, qy, qz, qw).
         - Gripper state (open or closed).
     """
-    # Assert that all elements in the discrete action are integers
-    assert all(isinstance(x, (int, np.integer)) for x in discrete_action), "All elements in discrete_action must be integers"
-    # Extract translational indices (x, y, z) from the discrete action
-    trans_indicies = np.array(discrete_action[:3])
-
-    # Calculate the resolution of each voxel in the scene bounds
-    bounds = SCENE_BOUNDS
-    res = (bounds[3:] - bounds[:3]) / VOXEL_SIZE
-
-    # Convert translational indices to continuous attention coordinates
-    attention_coordinate = bounds[:3] + res * trans_indicies + res / 2
-
-    # Extract the gripper state (open or closed)
-    is_gripper_open = discrete_action[-1]
-
-    if len(discrete_action) == 7:
-        # Extract rotational indices (roll, pitch, yaw) and gripper index
-        rot_and_grip_indicies = np.array(discrete_action[3:6])
-
-        # Convert discrete rotational indices to a quaternion
-        quat = discrete_euler_to_quaternion(rot_and_grip_indicies)
-
-        # Combine the continuous attention coordinates, quaternion, and gripper state
-        continuous_action = np.concatenate([
-            attention_coordinate,  # Continuous (x, y, z) position
-            quat,                  # Quaternion (qx, qy, qz, qw)
-            [is_gripper_open]      # Gripper state (1 for open, 0 for closed)
-        ])
-    elif len(discrete_action) == 4:
-        # Combine the continuous attention coordinates, quaternion, and gripper state
-        continuous_action = np.concatenate([
-            attention_coordinate,  # Continuous (x, y, z) position
-            [is_gripper_open]      # Gripper state (1 for open, 0 for closed)
-        ])
-    elif len(discrete_action) == 8: # for debug purpose,
-        continuous_action = np.array(discrete_action)
-    else:
-        raise ValueError("Wrong length of discrete action")
-
+    continuous_action, _ = describe_discrete_action_conversion(
+        discrete_action,
+        bounds=bounds,
+        flip_y=flip_y,
+        zero_rotation_as_identity_wxyz=False,
+    )
     return continuous_action
 
-def draw_xyz_coordinate(image_path, resolution):
+def draw_xyz_coordinate(image_path, resolution, backend="rlbench"):
     image = cv2.imread(image_path)
     postfix = os.path.splitext(image_path)[1]
     save_path = image_path.replace(postfix, f"_wCoord{postfix}")
+    if backend == "libero":
+        scale = resolution / 500.0
+        origin = (int(round(122 * scale)), int(round(122 * scale)))
+        axis_length = max(26, int(round(44 * scale)))
+        text_origin = (origin[0] + int(round(8 * scale)), origin[1] + int(round(18 * scale)))
+
+        color_x = (0, 0, 255)
+        color_y = (0, 255, 0)
+        color_z = (255, 0, 0)
+        cv2.circle(image, (int(origin[0]), int(origin[1])), 3, (0, 0, 255), -1)
+        cv2.putText(
+            image,
+            "(0, 0, 0)",
+            text_origin,
+            fontFace=cv2.FONT_HERSHEY_SIMPLEX,
+            fontScale=0.5 * scale,
+            color=(0, 0, 255),
+            thickness=1,
+            lineType=cv2.LINE_AA,
+        )
+        cv2.arrowedLine(image, origin, (origin[0] + axis_length, origin[1]), color_y, 2, tipLength=0.2)
+        cv2.putText(image, "y", (origin[0] + axis_length + int(round(6 * scale)), origin[1] - int(round(10 * scale))), cv2.FONT_HERSHEY_SIMPLEX, 0.75 * scale, color_y, 2)
+        cv2.arrowedLine(image, origin, (origin[0], origin[1] - axis_length), color_z, 2, tipLength=0.2)
+        cv2.putText(image, "z", (origin[0] + int(round(6 * scale)), origin[1] - axis_length - int(round(10 * scale))), cv2.FONT_HERSHEY_SIMPLEX, 0.75 * scale, color_z, 2)
+        cv2.arrowedLine(image, origin, (origin[0] - axis_length + int(round(12 * scale)), origin[1] + axis_length), color_x, 2, tipLength=0.2)
+        cv2.putText(image, "x", (origin[0] - axis_length, origin[1] + axis_length - int(round(10 * scale))), cv2.FONT_HERSHEY_SIMPLEX, 0.75 * scale, color_x, 2)
+        cv2.imwrite(save_path, image)
+        return save_path
+
     # origin = (45, 172)  # Adjust based on the table's position in the image
     if resolution == 500:
         origin = (62, 239)  # Adjust based on the table's position in the image
@@ -318,7 +387,7 @@ def draw_xyz_coordinate(image_path, resolution):
         # Save the image with the axes
         cv2.imwrite(save_path, image)
     else:
-        ValueError("Detection boxes are not supported for this resolution. Please disable detection boxes or use a valid resolution.")
+        raise ValueError("Detection boxes are not supported for this resolution. Please disable detection boxes or use a valid resolution.")
 
     return save_path
 
@@ -368,7 +437,7 @@ def annotate_image_with_boxes(input_image_path, pixel_points_2D):
     """
     # 读取图像并检测目标框
     image_bgr = cv2.imread(input_image_path, cv2.IMREAD_COLOR)
-    results = object_detection_model.predict(source=input_image_path, conf=0.0001, line_width=1, verbose=False)
+    results = get_object_detection_model().predict(source=input_image_path, conf=0.0001, line_width=1, verbose=False)
     predicted_boxes = results[0].boxes.xyxy
     # out_file = draw_points_on_image(input_image_path, pixel_points_2D)
 
@@ -424,14 +493,28 @@ def annotate_image_with_boxes(input_image_path, pixel_points_2D):
 
     return image_save_path
 
-def draw_bounding_boxes(image_path_list, world_points, camera_extrinsics_list, camera_intrinsics_list):
+def draw_bounding_boxes(image_path_list, world_points, camera_extrinsics_list, camera_intrinsics_list, backend="rlbench", env=None, camera_views=None):
     """
     主函数：遍历每张图，先投影，再绘制，再保存。
     """
     image_save_path_list = []
 
-    for input_image_path, camera_extrinsics, camera_intrinsics in zip(image_path_list, camera_extrinsics_list, camera_intrinsics_list):
+    if camera_views is None:
+        camera_views = [None] * len(image_path_list)
+
+    for input_image_path, camera_extrinsics, camera_intrinsics, camera_view in zip(image_path_list, camera_extrinsics_list, camera_intrinsics_list, camera_views):
+        if backend == "libero" and env is not None and hasattr(env, "get_annotation_points"):
+            pixel_points_2D = env.get_annotation_points(camera_view)
+            image_save_path = draw_points_on_image(input_image_path, np.asarray(pixel_points_2D, dtype=np.float64))
+            image_save_path_list.append(image_save_path)
+            continue
         pixel_points_2D = project_world_points_to_image(world_points, camera_extrinsics, camera_intrinsics)
+        if backend == "libero":
+            image = cv2.imread(input_image_path, cv2.IMREAD_COLOR)
+            if image is not None:
+                height, width = image.shape[:2]
+                pixel_points_2D[..., 0] = (width - 1) - pixel_points_2D[..., 0]
+                pixel_points_2D[..., 1] = (height - 1) - pixel_points_2D[..., 1]
         # image_save_path = annotate_image_with_boxes(input_image_path, pixel_points_2D)
         image_save_path = draw_points_on_image(input_image_path, pixel_points_2D)
         image_save_path_list.append(image_save_path)
@@ -448,6 +531,8 @@ def _get_mask_id_to_name_dict_for_input(object_info):
 
 def _get_point_cloud_dict_for_input(obs, camera_types):
     # This function gets the point cloud using the same operations as PerAct Colab Tutorial
+    from pyrep.objects import VisionSensor
+
     point_cloud_dict = {}
     camera_extrinsics_list, camera_intrinsics_list = [], []
     for camera_type in CAMERAS:
@@ -514,7 +599,7 @@ def form_obs_for_input(
 
     return real_name_to_avg_coord, all_avg_point_list
 
-def form_object_coord_for_input(obs, task_class, camera_types):
+def form_rlbench_object_coord_for_input(obs, task_class, camera_types):
     mask_id_to_sim_name = _get_mask_id_to_name_dict_for_input(obs['object_informations'])
     point_cloud_dict, camera_extrinsics_list, camera_intrinsics_list = _get_point_cloud_dict_for_input(obs, camera_types)
     mask_dict = _get_mask_dict_for_input(obs)
@@ -525,6 +610,71 @@ def form_object_coord_for_input(obs, task_class, camera_types):
                         if name in sim_name_to_real_name}
     avg_coord, all_avg_point_list = form_obs_for_input(mask_dict, mask_id_to_real_name, point_cloud_dict)
     return avg_coord, all_avg_point_list, camera_extrinsics_list, camera_intrinsics_list
+
+
+def get_default_scene_bounds(backend="rlbench"):
+    if backend == "libero":
+        return LIBERO_SCENE_BOUNDS.copy()
+    return SCENE_BOUNDS.copy()
+
+
+def _mujoco_camera_pose_to_extrinsic(camera_pos, camera_xmat):
+    rotation_world_from_mujoco = np.asarray(camera_xmat, dtype=np.float64).reshape(3, 3)
+    mujoco_to_cv = np.diag([1.0, -1.0, -1.0])
+    extrinsic = np.eye(4, dtype=np.float64)
+    extrinsic[:3, :3] = rotation_world_from_mujoco @ mujoco_to_cv
+    extrinsic[:3, 3] = np.asarray(camera_pos, dtype=np.float64)
+    return extrinsic
+
+
+def _camera_intrinsics_from_fovy(fovy_deg, width, height):
+    fy = 0.5 * height / np.tan(np.deg2rad(fovy_deg) / 2.0)
+    fx = fy
+    cx = width / 2.0
+    cy = height / 2.0
+    return np.array([[fx, 0.0, cx], [0.0, fy, cy], [0.0, 0.0, 1.0]], dtype=np.float64)
+
+
+def _libero_camera_params(env, camera_type):
+    if hasattr(env, "get_camera_params"):
+        params = env.get_camera_params(camera_type)
+        return np.asarray(params["extrinsic"], dtype=np.float64), np.asarray(params["intrinsic"], dtype=np.float64)
+    camera_name = env.camera_name_map[camera_type]
+    camera_id = env.env.sim.model.camera_name2id(camera_name)
+    camera_pos = env.env.sim.data.cam_xpos[camera_id]
+    camera_xmat = env.env.sim.data.cam_xmat[camera_id]
+    camera_fovy = env.env.sim.model.cam_fovy[camera_id]
+    extrinsic = _mujoco_camera_pose_to_extrinsic(camera_pos, camera_xmat)
+    intrinsic = _camera_intrinsics_from_fovy(
+        camera_fovy,
+        env.camera_width,
+        env.camera_height,
+    )
+    return extrinsic, intrinsic
+
+
+def form_libero_object_coord_for_input(env, camera_types):
+    object_entries = env.get_prompt_object_entries()
+    scene_bounds = env.scene_bounds if getattr(env, "scene_bounds", None) is not None else LIBERO_SCENE_BOUNDS
+    avg_coord = {
+        f"object {idx + 1}": list(point_to_visual_voxel_index(np.asarray(entry["position"]), bounds=scene_bounds).astype(int))
+        for idx, entry in enumerate(object_entries)
+    }
+    all_avg_point_list = [np.asarray(entry["position"], dtype=np.float64) for entry in object_entries]
+    camera_extrinsics_list, camera_intrinsics_list = [], []
+    for camera_type in camera_types:
+        extrinsic, intrinsic = _libero_camera_params(env, camera_type)
+        camera_extrinsics_list.append(extrinsic)
+        camera_intrinsics_list.append(intrinsic)
+    return avg_coord, all_avg_point_list, camera_extrinsics_list, camera_intrinsics_list
+
+
+def form_object_coord_for_input(obs, task_class, camera_types, backend="rlbench", env=None):
+    if backend == "libero":
+        if env is None:
+            raise ValueError("LIBERO object extraction requires the active env adapter.")
+        return form_libero_object_coord_for_input(env, camera_types)
+    return form_rlbench_object_coord_for_input(obs, task_class, camera_types)
 
 def draw_points_on_image(
     input_image_path: str,

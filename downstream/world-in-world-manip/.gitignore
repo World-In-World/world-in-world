@@ -8,6 +8,7 @@ temp/
 src/
 outputs/
 running/
+.venv-libero/
 
 *.png
 *.tar.gz
@@ -23,4 +24,3 @@ code_organization_note.md
 docs/
 test.sh
 scripts/test_manip.sh
-

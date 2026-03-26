@@ -23,6 +23,21 @@ igenex_host_csv="$6"
 shift 6
 extra_args=("$@")         # any additional Hydra/CLI args
 
+# LIBERO default: one high-level VLM action is executed as repeated absolute-target updates.
+manip_backend=""
+has_libero_action_repeat="0"
+for arg in "${extra_args[@]}"; do
+  if [[ "${arg}" == manip_backend=* ]]; then
+    manip_backend="${arg#*=}"
+  fi
+  if [[ "${arg}" == libero_action_repeat=* ]]; then
+    has_libero_action_repeat="1"
+  fi
+done
+if [[ "${manip_backend}" == "libero" && "${has_libero_action_repeat}" == "0" ]]; then
+  extra_args+=("libero_action_repeat=50")
+fi
+
 # Set model_type to "remote" as default
 model_type="remote"
 

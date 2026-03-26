@@ -1,5 +1,6 @@
 numpy==1.26.4
 Pillow
+PyYAML
 pyquaternion
 setuptools==75.6.0
 natsort

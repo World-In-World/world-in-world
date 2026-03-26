@@ -19,7 +19,10 @@ exp_name: 06.26_baseline_debug
 visual_icl: 0
 tp: 1
 proposal_num: 1
-executed_action_per_step: 5
+executed_action_per_step: 6
 use_last_action: False
 enable_path_obs: False
-max_step: 15
+max_step: 12
+manip_backend: rlbench
+libero_env_url: http://127.0.0.1:8765
+libero_action_repeat: 100
