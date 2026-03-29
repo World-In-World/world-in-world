@@ -8,7 +8,7 @@ import random
 import time
 import os
 import datetime as _dt
-from wiw_manip.envs.eb_man_utils import ROTATION_RESOLUTION, VOXEL_SIZE
+from wiw_manip.envs.utils import ROTATION_RESOLUTION, VOXEL_SIZE
 from wiw_manip.planner.utils.remote_model import RemoteModel
 from wiw_manip.planner.utils.custom_model import CustomModel
 from wiw_manip.planner.base_planner import BasePlanner

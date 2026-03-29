@@ -1,7 +1,7 @@
 from wiw_manip.envs.RLBenchEnv import RLBenchEnv, VALID_TASKS
 from wiw_manip.evaluator.config.eb_manipulation_example import vlm_examples_RLbench
 from wiw_manip.main import logger
-from wiw_manip.envs.eb_man_utils import get_continous_action_from_discrete
+from wiw_manip.envs.utils import get_continous_action_from_discrete
 from wiw_manip.evaluator.base_evaluator import Base_Evaluator
 
 class VLM_Evaluator(Base_Evaluator):

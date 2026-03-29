@@ -19,7 +19,7 @@ from wiw_manip.main import logger
 import json
 from collect_dataset_util import save_demo, create_unique_episode_dir
 from wiw_manip.configs.paths import TEST_DATASET_PATH
-from wiw_manip.envs.eb_man_utils import VALID_TASKS
+from wiw_manip.envs.utils import VALID_TASKS
 
 class RLBenchEnv(gym.Env):
     metadata = {'render.modes': ['human', 'rgb_array']}

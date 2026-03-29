@@ -213,6 +213,8 @@ CUDA_VISIBLE_DEVICES="0" bash scripts/run_manip.sh \
     - `vlm-igenex`: VLM planner with world model
     - `diff-base`: diffuser actor without world model
     - `diff-igenex`: diffuser actor with world model
+    - `openpi-base`: OpenPI proposer without world model
+    - `openpi-igenex`: OpenPI proposer with world model
 - `<model_name>`: name of VLM used by the VLM planner (e.g., `Qwen/Qwen2.5-VL-72B-Instruct-AWQ`)
 - `<num_workers>`: number of parallel workers for evaluation
 - `<vllm_hosts>`: hostname and port for vLLM server (same format as other tasks, e.g., `localhost:8010`)
@@ -227,6 +229,34 @@ CUDA_VISIBLE_DEVICES="0" bash scripts/run_manip.sh \
     1 \
     "localhost:8010" \
     "localhost:6010"
+```
+
+### Manip with OpenPI Proposer
+
+You need to start an OpenPI remote policy server following the instructions in [OpenPI repo](https://github.com/Physical-Intelligence/openpi/blob/main/docs/remote_inference.md) with the checkpoint downloaded [here](01_setup_env.md#download-our-finetuned-checkpoint-for-OpenPI) and following OpenPI configuration:
+```python
+TrainConfig(
+    name="pi05_wow_rlbench_infer",
+    model=pi0_config.Pi0Config(
+        action_horizon=15,
+        pi05=True,
+        paligemma_variant="gemma_2b_lora",
+        action_expert_variant="gemma_300m_lora",
+    ),
+    data=LeRobotLiberoDataConfig(
+        repo_id="openpi_wow_rlbench/libero",
+        base_config=DataConfig(
+            prompt_from_task=True,
+        ),
+        extra_delta_transform=True,
+    ),
+    weight_loader=weight_loaders.CheckpointWeightLoader("gs://openpi-assets/checkpoints/pi05_base/params"),
+),
+```
+
+Command for reference:
+```bash
+uv run scripts/serve_policy.py --port 8011 policy:checkpoint --policy.config=pi05_wow_rlbench_infer --policy.dir=checkpoints/openpi_wow_rlbench
 ```
 
 ---

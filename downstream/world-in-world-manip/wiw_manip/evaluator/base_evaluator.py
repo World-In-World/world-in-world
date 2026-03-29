@@ -9,7 +9,7 @@ import time
 from time import sleep
 from wiw_manip.evaluator.config.system_prompts import eb_manipulation_system_prompt
 # from wiw_manip.envs.EBManEnv import EBManEnv, EVAL_SETS, ValidEvalSets
-from wiw_manip.envs.eb_man_utils import (
+from wiw_manip.envs.utils import (
     form_object_coord_for_input,
     draw_bounding_boxes,
     draw_xyz_coordinate,
@@ -23,7 +23,7 @@ from wiw_manip.evaluator.config.eb_manipulation_example import (
 from wiw_manip.main import logger
 from wiw_manip.planner.utils.visualize import visualize_ar_baseline
 from wiw_manip.planner.utils.planner_utils import _get
-from wiw_manip.envs.eb_man_utils import get_continous_action_from_discrete
+from wiw_manip.envs.utils import get_continous_action_from_discrete
 from pyrep.backend import sim
 from pyrep.const import ObjectType
 

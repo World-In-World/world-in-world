@@ -6,6 +6,7 @@
 /downstream/solver_older.py
 /downstream/utils.py
 /test_wyn
+/FTsvd/diffusers-private/_dist-info/
 
 # extensions
 *.egg-info

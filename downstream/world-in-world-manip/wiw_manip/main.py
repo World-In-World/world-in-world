@@ -3,7 +3,7 @@ import hydra
 from omegaconf import DictConfig, OmegaConf
 import logging
 import yaml
-from wiw_manip.envs.eb_man_utils import VALID_TASKS, DIFF_VALID_TASKS
+from wiw_manip.envs.utils import VALID_TASKS, DIFF_VALID_TASKS
 
 logger = logging.getLogger("EB_logger")
 if not logger.hasHandlers():
@@ -19,6 +19,8 @@ class_names = {
     "diff-igenex": "Diff_Igenex_Evaluator",
     "vlm-base": "VLM_Evaluator",
     "vlm-igenex": "Igenex_Evaluator",
+    "openpi-base": "Openpi_Evaluator",
+    "openpi-igenex": "Openpi_Igenex_Evaluator",
 }
 
 # the evaluator file you want to use
@@ -28,6 +30,8 @@ module_names = {
     "diff-igenex": "diff_igenex_evaluator",
     "vlm-base": "vlm_evaluator",
     "vlm-igenex": "igenex_evaluator",
+    "openpi-base": "openpi_evaluator",
+    "openpi-igenex": "openpi_igenex_evaluator",
 }
 
 def get_evaluator(env_name: str):

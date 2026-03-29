@@ -1,7 +1,7 @@
-from wiw_manip.planner.diff_planner import DiffPlanner
+from wiw_manip.planner.openpi_planner import OpenpiPlanner
 from wiw_manip.planner.action_igenex_planner import ActionIgenexPlanner, select_diverse_points
 
-class DiffIgenexPlanner(DiffPlanner, ActionIgenexPlanner):
+class OpenpiIgenexPlanner(OpenpiPlanner, ActionIgenexPlanner):
 
     def __init__(
         self,
@@ -11,7 +11,6 @@ class DiffIgenexPlanner(DiffPlanner, ActionIgenexPlanner):
         self.shot_example_num = 1
 
     def act(self,
-            gripper_history,
             img_path_list_anno,
             user_instruction,
             avg_obj_coord,
@@ -22,19 +21,19 @@ class DiffIgenexPlanner(DiffPlanner, ActionIgenexPlanner):
             **kwargs,
         ):
         proposer_fn = self.generate_trajectories(
-            curr_obs=curr_obs, gripper_history=gripper_history
+            curr_obs=curr_obs, user_instruction=user_instruction
         )
 
         return self.query_igenex(img_path_list_anno, user_instruction, img_path_list_origin, curr_obs, proposer_fn, self.task_name, **kwargs)
 
     def generate_trajectories(
-        self, curr_obs, gripper_history
+        self, curr_obs, user_instruction
     ):
         def proposer_fn(num_trajs, accumulate_trajs=[]):
-            actions_plans, reasons = DiffPlanner.act(
+            actions_plans, reasons = OpenpiPlanner.act(
                 self=self,
                 curr_obs=curr_obs,
-                gripper_history=gripper_history,
+                user_instruction=user_instruction,
                 query_num=self.proposal_num,
             )
 

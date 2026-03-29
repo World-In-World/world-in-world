@@ -9,7 +9,7 @@ from typing import Any, Dict, List
 from numpy.typing import NDArray
 from torch import Tensor
 from jaxtyping import Float, Int32, UInt8
-from wiw_manip.envs.eb_man_utils import (
+from wiw_manip.envs.utils import (
     get_continous_action_from_discrete,
     get_continous_action_from_discrete_batch,
 )
@@ -37,13 +37,6 @@ from wiw_manip.planner.utils.saver import (
     save_action_sequence,
 )
 
-VISUAL_ICL_EXAMPLES_PATH = "wiw_manip/evaluator/config/visual_icl_examples/eb_manipulation"
-VISUAL_ICL_EXAMPLE_CATEGORY = {
-    "pick": "pick_cube_shape",
-    "place": "place_into_shape_sorter_color",
-    "stack": "stack_cubes_color",
-    "wipe": "wipe_table_direction"
-}
 WORLD_MODEL_TYPES = {
     "text": ["wan21", "ltx", "hunyuan", "nwm", "cosmos", "wan22", "svd", "gen3tur"],
     "FTtext": ["FTcosmos", "FTltx", "FTwan21", "FTwan22", "FTwan22-14B"],

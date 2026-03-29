@@ -213,12 +213,24 @@ Download our pretrained checkpoints for 3D-Diffuser-Actor:
 ```bash
 pip install -U gdown
 
-gdown "https://drive.google.com/uc?export=download&id=1QTKzDZvRUh3pVi-0ui1TT-CW7jlwZc6V" -O insert_onto_square_peg
-gdown "https://drive.google.com/uc?export=download&id=1VZjtIEVdSVjpCYM824PKWTMXW6AcjQi8" -O push_buttons
-gdown "https://drive.google.com/uc?export=download&id=1XHKYOMj2D5txC8LZBzkWU38Xjo1i3Pv7" -O slide_block_to_color_target
+gdown "https://drive.google.com/uc?export=download&id=1QTKzDZvRUh3pVi-0ui1TT-CW7jlwZc6V" -O insert_onto_square_peg.pth
+gdown "https://drive.google.com/uc?export=download&id=1VZjtIEVdSVjpCYM824PKWTMXW6AcjQi8" -O push_buttons.pth
+gdown "https://drive.google.com/uc?export=download&id=1XHKYOMj2D5txC8LZBzkWU38Xjo1i3Pv7" -O slide_block_to_color_target.pth
 ```
 
 Then configure them in `downstream/world-in-world-manip/wiw_manip/configs/paths.py`.
+
+### Install Openpi Client (for openpi-base and openpi-igenex)
+
+Install the package `openpi-client` following the instructions in [OpenPI repo](https://github.com/Physical-Intelligence/openpi/blob/main/docs/remote_inference.md)
+
+### Download our finetuned checkpoint for OpenPI
+
+```bash
+gdown --id 1_a4KmB9x16L6lXx3AdJ_9bAqWjinG9UU -O openpi_wow_rlbench.tar
+
+tar -xf openpi_wow_rlbench.tar -C <your_path_to_openpi_checkpoint>
+```
 
 ---
 
