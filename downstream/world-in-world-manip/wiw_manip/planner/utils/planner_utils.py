@@ -1,16 +1,12 @@
-import os
 import re
 import base64
-import copy
 from mimetypes import guess_type
-import google.generativeai as genai
-from openai import OpenAI, AzureOpenAI
 import typing_extensions as typing
 from pydantic import BaseModel, Field
 from PIL import Image
 import numpy as np
 import io
-from typing import List, Sequence, Union, Any, Dict, Set
+from typing import List, Sequence, Union
 Pose = Sequence[float]           # length-7 (x, y, z, qx, qy, qz, qw)
 PoseBatch = Sequence[Pose]       # list/tuple/array of poses
 
@@ -51,6 +47,28 @@ The fields in above JSON follows the purpose below:
 3. language_plan: A list of natural language actions to achieve the user instruction. Each language action is started by the step number and the language action name (refer to objects by name, not index in your language plan).
 4. executable_plan: A list of discrete actions needed to achieve the user instruction, with each discrete action being a 7-dimensional discrete action.
 5. keep your plan efficient and concise.
+'''
+
+template_manip_libero = '''\
+The output json format should be {'visual_state_description':str, 'reasoning_and_reflection':str, 'language_plan':str, 'executable_plan':str}
+The fields in above JSON follows the purpose below:
+1. visual_state_description: Describe each object by index and coordinate from input. For object naming, only use the instructed target name and "basket". For all other objects, use neutral wording "distractor object".
+2. reasoning_and_reflection: Reason about the overall plan that needs to be taken on the target objects, and reflect on the previous actions taken if available.
+3. language_plan: A list of natural language actions to achieve the user instruction. Each language action is started by the step number and the action name (refer to objects by role, e.g., target object / basket, not by guessed semantic labels).
+4. executable_plan: A list of discrete actions needed to achieve the user instruction, with each discrete action being a 7-dimensional discrete action.
+5. Do not hallucinate semantic labels for distractors (for example: bottle, carton, container, can, box, color adjectives) unless explicitly stated in the instruction.
+6. keep your plan efficient and concise.
+'''
+
+template_manip_libero_spatial = '''\
+The output json format should be {'visual_state_description':str, 'reasoning_and_reflection':str, 'language_plan':str, 'executable_plan':str}
+The fields in above JSON follows the purpose below:
+1. visual_state_description: Identify the relation anchors and objects by index and coordinate from input. Allowed semantic anchors: black bowl, plate, ramekin, cookies box, wooden cabinet, stove.
+2. reasoning_and_reflection: First explain relation grounding (which bowl matches the instruction relation), then explain the pick-and-place strategy to the plate.
+3. language_plan: A list of natural language actions to achieve the user instruction. Each language action is started by step number and should refer to relation-selected target bowl and plate.
+4. executable_plan: A list of discrete actions needed to achieve the user instruction, with each discrete action being a 7-dimensional discrete action.
+5. Do not hallucinate unrelated semantic labels for distractors. If not in the allowed anchor set, use neutral wording like distractor object.
+6. keep your plan efficient and concise.
 '''
 
 

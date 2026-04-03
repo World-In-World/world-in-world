@@ -220,7 +220,13 @@ CUDA_VISIBLE_DEVICES="0" bash scripts/run_manip.sh \
 - `<vllm_hosts>`: hostname and port for vLLM server (same format as other tasks, e.g., `localhost:8010`)
 - `<igenex_host>`: host for world model server (same format as other tasks, e.g., `localhost:6010`)
 
-**Example** for `vlm-base` with `Qwen2.5-VL-72B-Instruct-AWQ`, exp_id `09.12_qwen_base`, 1 worker, vLLM at `localhost:8010`, and world model at `localhost:6010`:
+**LIBERO prerequisite:** start LIBERO env server first (see [Start LIBERO environment server](01_setup_env.md#Start-LIBERO-environment-server)).
+
+**OpenPI prerequisite:** start OpenPI proposer server first (see [Start OpenPI proposer server](01_setup_env.md#Start-OpenPI-proposer-server)).
+
+### Manip — example
+
+**Example A (run `vlm-base`, no world model)**
 ```bash
 CUDA_VISIBLE_DEVICES="0" bash scripts/run_manip.sh \
     vlm-base \
@@ -231,32 +237,30 @@ CUDA_VISIBLE_DEVICES="0" bash scripts/run_manip.sh \
     "localhost:6010"
 ```
 
-### Manip with OpenPI Proposer
+**Example B (run `vlm-igenex`, with world model and libero tasks)**
 
-You need to start an OpenPI remote policy server following the instructions in [OpenPI repo](https://github.com/Physical-Intelligence/openpi/blob/main/docs/remote_inference.md) with the checkpoint downloaded [here](01_setup_env.md#download-our-finetuned-checkpoint-for-OpenPI) and following OpenPI configuration:
-```python
-TrainConfig(
-    name="pi05_wow_rlbench_infer",
-    model=pi0_config.Pi0Config(
-        action_horizon=15,
-        pi05=True,
-        paligemma_variant="gemma_2b_lora",
-        action_expert_variant="gemma_300m_lora",
-    ),
-    data=LeRobotLiberoDataConfig(
-        repo_id="openpi_wow_rlbench/libero",
-        base_config=DataConfig(
-            prompt_from_task=True,
-        ),
-        extra_delta_transform=True,
-    ),
-    weight_loader=weight_loaders.CheckpointWeightLoader("gs://openpi-assets/checkpoints/pi05_base/params"),
-),
+Start a world model manager first (from repo root):
+```bash
+CUDA_VISIBLE_DEVICES="0" bash downstream/scripts/init_worldmodel_manager.sh \
+    09.12_libero_wm \
+    1 \
+    svd \
+    6010
+    --task_type=manipulation
 ```
 
-Command for reference:
+Then run manipulation:
 ```bash
-uv run scripts/serve_policy.py --port 8011 policy:checkpoint --policy.config=pi05_wow_rlbench_infer --policy.dir=checkpoints/openpi_wow_rlbench
+CUDA_VISIBLE_DEVICES="0" bash scripts/run_manip.sh \
+    vlm-igenex \
+    09.12_libero_igenex \
+    Qwen/Qwen2.5-VL-72B-Instruct-AWQ \
+    1 \
+    "localhost:8010" \
+    "localhost:6010" \
+    manip_backend=libero \
+    libero_env_url=http://127.0.0.1:8765 \
+    wm_condition_mode=zero_shot_text \
 ```
 
 ---

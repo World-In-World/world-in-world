@@ -5,8 +5,9 @@
 /downstream/example-*.json
 /downstream/solver_older.py
 /downstream/utils.py
+/.cache
 /test_wyn
-/FTsvd/diffusers-private/_dist-info/
+/FTsvd/diffusers-private/_dist-info
 
 # extensions
 *.egg-info

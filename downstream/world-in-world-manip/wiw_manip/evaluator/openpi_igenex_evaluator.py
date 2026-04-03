@@ -11,6 +11,7 @@ class Openpi_Igenex_Evaluator(Openpi_Evaluator, Igenex_Evaluator):
     def initialize_planner(self, ic_examples, task_name):
         # almost same as Igenex_Evaluator
         self.planner = OpenpiIgenexPlanner(
+            backend=self.backend,
             task=task_name,
             model_name=self.model_name,
             model_type=self.config["model_type"],

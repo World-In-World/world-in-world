@@ -19,7 +19,7 @@ from wiw_manip.main import logger
 import json
 from collect_dataset_util import save_demo, create_unique_episode_dir
 from wiw_manip.configs.paths import TEST_DATASET_PATH
-from wiw_manip.envs.utils import VALID_TASKS
+from wiw_manip.envs.utils import RLBENCH_SCENE_BOUNDS, RLBENCH_VALID_TASKS
 
 class RLBenchEnv(gym.Env):
     metadata = {'render.modes': ['human', 'rgb_array']}
@@ -70,10 +70,11 @@ class RLBenchEnv(gym.Env):
         # New added:
         self._enable_path_obs = enable_path_obs
         self.exp_name = exp_name
+        self.scene_bounds = RLBENCH_SCENE_BOUNDS.copy()
 
     # redo this method
     def init_dataset_and_tasks(self, eval_task, down_sample_ratio, log_path, selected_indexes=[]):
-        assert eval_task in VALID_TASKS
+        assert eval_task in RLBENCH_VALID_TASKS
         self.task_class = eval_task
         task_class = task_file_to_task_class(eval_task, parent_folder='vlm')
         self.task = self.env.get_task(task_class)

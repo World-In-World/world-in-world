@@ -193,7 +193,7 @@ pip install -r requirements.txt # other required packages
 
 If you meet anything like `qt.qpa.plugin: Could not find the Qt platform plugin "xcb"`, try `pip uninstall opencv-python opencv-python-headless` and `pip install opencv-python-headless==4.11.0.86`
 
-### Install 3D-Diffuser-Actor (for diff-base and diff-igenex)
+### Install 3D-Diffuser-Actor (Optional, needed for diff-base and diff-igenex)
 
 ```bash
 mkdir src
@@ -220,16 +220,80 @@ gdown "https://drive.google.com/uc?export=download&id=1XHKYOMj2D5txC8LZBzkWU38Xj
 
 Then configure them in `downstream/world-in-world-manip/wiw_manip/configs/paths.py`.
 
-### Install Openpi Client (for openpi-base and openpi-igenex)
+### Install Openpi Client (Optional, needed for openpi-base and openpi-igenex)
 
 Install the package `openpi-client` following the instructions in [OpenPI repo](https://github.com/Physical-Intelligence/openpi/blob/main/docs/remote_inference.md)
 
-### Download our finetuned checkpoint for OpenPI
+### Configure OpenPI server
 
+You can create a separate environment for the OpenPI server.
+
+First, download our finetuned checkpoint for OpenPI:
 ```bash
 gdown --id 1_a4KmB9x16L6lXx3AdJ_9bAqWjinG9UU -O openpi_wow_rlbench.tar
 
 tar -xf openpi_wow_rlbench.tar -C <your_path_to_openpi_checkpoint>
+```
+
+Then, follow the instructions in [OpenPI repo](https://github.com/Physical-Intelligence/openpi/blob/main/docs/remote_inference.md) with this configuration:
+```python
+TrainConfig(
+    name="pi05_wow_rlbench_infer",
+    model=pi0_config.Pi0Config(
+        action_horizon=15,
+        pi05=True,
+        paligemma_variant="gemma_2b_lora",
+        action_expert_variant="gemma_300m_lora",
+    ),
+    data=LeRobotLiberoDataConfig(
+        repo_id="openpi_wow_rlbench/libero",
+        base_config=DataConfig(
+            prompt_from_task=True,
+        ),
+        extra_delta_transform=True,
+    ),
+    weight_loader=weight_loaders.CheckpointWeightLoader("gs://openpi-assets/checkpoints/pi05_base/params"),
+),
+```
+
+Command for reference:
+```bash
+uv run scripts/serve_policy.py --port 8011 policy:checkpoint --policy.config=pi05_wow_rlbench_infer --policy.dir=checkpoints/openpi_wow_rlbench
+```
+
+### Setup LIBERO backend (Optional, needed for libero_object and libero_spatial)
+
+If you want to run the `libero_object` / `libero_spatial` tasks, we recommend using a dedicated `uv` environment to setup the libero server.
+
+From repository root:
+
+```bash
+git submodule update --init --recursive third_party/libero
+cd downstream/world-in-world-manip
+
+uv venv --python 3.8 .venv-libero
+source .venv-libero/bin/activate
+
+uv pip sync requirements_libero.txt --extra-index-url https://download.pytorch.org/whl/cu113 --index-strategy unsafe-best-match
+
+cd ../..
+uv pip install -e third_party/libero
+
+export PYTHONPATH=$PYTHONPATH:$PWD/third_party/libero:$PWD/downstream/world-in-world-manip
+export LIBERO_CONFIG_PATH=$PWD/.cache/libero
+```
+
+### Start LIBERO environment server
+
+After the setup above:
+
+```bash
+cd /path/to/world-in-world
+source downstream/world-in-world-manip/.venv-libero/bin/activate
+export PYTHONPATH=$PYTHONPATH:$PWD/third_party/libero:$PWD/downstream/world-in-world-manip
+export LIBERO_CONFIG_PATH=$PWD/.cache/libero
+cd downstream/world-in-world-manip
+python scripts/libero_env_server.py --host=127.0.0.1 --port=8765
 ```
 
 ---

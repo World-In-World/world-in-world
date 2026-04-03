@@ -19,6 +19,10 @@ visual_icl: null
 tp: null
 log_level: null
 igenex_host: null
+wm_condition_mode: null
 enable_path_obs: null
+manip_backend: rlbench
+libero_env_url: http://127.0.0.1:8765
+libero_action_repeat: 50
 vlm__temperature: 1.0
 vlm__top_k: -1

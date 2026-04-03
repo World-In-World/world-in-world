@@ -12,7 +12,13 @@ from wiw_manip.envs.utils import ROTATION_RESOLUTION, VOXEL_SIZE
 from wiw_manip.planner.utils.remote_model import RemoteModel
 from wiw_manip.planner.utils.custom_model import CustomModel
 from wiw_manip.planner.base_planner import BasePlanner
-from wiw_manip.planner.utils.planner_utils import local_image_to_data_url, template_manip, template_lang_manip
+from wiw_manip.planner.utils.planner_utils import (
+    local_image_to_data_url,
+    template_manip,
+    template_manip_libero,
+    template_manip_libero_spatial,
+    template_lang_manip,
+)
 from wiw_manip.main import logger
 from json_repair import repair_json
 from typing import List, Tuple, Optional, Any, Dict
@@ -155,6 +161,27 @@ class VLMPlanner(BasePlanner):
                 )
             ]
         )
+
+    @staticmethod
+    def _libero_task_family(task_variation: str):
+        task_variation = str(task_variation)
+        if task_variation.startswith("libero_object"):
+            return "object"
+        if task_variation.startswith("libero_spatial"):
+            return "spatial"
+        return None
+
+    def _get_manip_template(self, task_variation=None) -> str:
+        if self.backend == "libero":
+            family = self._libero_task_family(task_variation)
+            if family == "object":
+                return template_manip_libero
+            elif family == "spatial":
+                return template_manip_libero_spatial
+            else:
+                raise ValueError(f"Unknown task variation {task_variation} for libero backend.")
+        elif self.backend == "rlbench":
+            return template_manip
     # ---------------- Prompt Construction Helpers ----------------
 
     def process_prompt_visual_icl(self, user_instruction, avg_obj_coord, prev_act_feedback=[]):
@@ -497,7 +524,7 @@ class VLMPlanner(BasePlanner):
             first_prompt, task_prompt = self.process_prompt_visual_icl(user_instruction, avg_obj_coord, prev_act_feedback=self.episode_act_feedback)
             if 'claude' in self.model_name or 'InternVL' in self.model_name or 'Qwen2-VL' in self.model_name or 'Qwen2.5-VL' in self.model_name:
                 task_prompt += "\n\n"
-                task_prompt = task_prompt + template_lang_manip if self.language_only else task_prompt + template_manip
+                task_prompt = task_prompt + template_lang_manip if self.language_only else task_prompt + self._get_manip_template(task_variation)
             if len(self.episode_messages) == 0:
                 self.episode_messages = self.get_message_visual_icl(obs, first_prompt, task_prompt, task_variation)
             else:
@@ -520,7 +547,7 @@ class VLMPlanner(BasePlanner):
                 or "Qwen2.5-VL" in self.model_name
             ):
                 task_prompt += "\n\n"
-                task_prompt = task_prompt + template_lang_manip if self.language_only else task_prompt + template_manip
+                task_prompt = task_prompt + template_lang_manip if self.language_only else task_prompt + self._get_manip_template(task_variation)
             if len(self.episode_messages) == 0:
                 self.episode_messages = self.get_message(obs, full_example_prompt, task_prompt, last_act)
             else:

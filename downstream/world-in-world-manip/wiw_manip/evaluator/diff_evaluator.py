@@ -4,7 +4,10 @@ from wiw_manip.planner.diff_planner import DiffPlanner
 class Diff_Evaluator(VLM_Evaluator):
         
     def initialize_planner(self, ic_examples, task_name):
-        self.planner = DiffPlanner(task_name)
+        self.planner = DiffPlanner(
+            backend=self.backend,
+            task=task_name,
+        )
         
     def act(self, img_path_list, image_history, user_instruction, avg_obj_coord, obs, img_path_list_origin=None):
         return self.planner.act(curr_obs=obs, gripper_history=self.gripper_history)

@@ -19,7 +19,9 @@ World-in-World is a unified **closed-loop** benchmark and toolkit for evaluating
 ## 📰 News
 - **2025-10-22**: Preprint released on arXiv. Landing page and repository initialized.
 - **2025-11-10**: Add post‑training instructions and data collection instructions in [data collection section](docs/04_post_training.md#collect-data-for-posttraining).
-- **2026-02-09**: Add Manipulation task instructions and environment setup
+- **2026-02-09**: Add Manipulation task instructions and environment setup.
+- **2026-04-01**: Add [OpenPI](https://github.com/Physical-Intelligence/openpi) as proposer in the manipulation task.
+- **2026-04-03**: Now supports [LIBERO](https://github.com/Lifelong-Robot-Learning/LIBERO) as the backend in the manipulation task. Thanks [@DehuiWang01](https://github.com/DehuiWang01)!
 
 ---
 

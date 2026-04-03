@@ -139,6 +139,87 @@ Output: {
 }""",
 ]
 
+libero_object_examples = [
+"""Human Instruction: Pick the alphabet soup and place it in the basket.
+Input: {'object 1': [34, 16, 14], 'object 2': [34, 29, 5], 'object 3': [48, 44, 5], 'object 4': [64, 60, 5], 'object 5': [78, 72, 4], 'object 6': [57, 83, 7]}
+Output: {
+    "visual_state_description": "I can see six labeled objects. Object 1 is the target object (alphabet soup) at [34, 16, 14]. Object 2 is a distractor object at [34, 29, 5]. Object 3 is a distractor object at [48, 44, 5]. Object 4 is a distractor object at [64, 60, 5]. Object 5 is a distractor object at [78, 72, 4]. Object 6 is the basket at [57, 83, 7].",
+    "reasoning_and_reflection": "The instruction names alphabet soup, so object 1 is the target and object 6 is the basket. I should not infer additional semantic categories for other objects; they are treated as distractors. A safe plan is approach, grasp, lift, transfer above basket, then release.",
+    "language_plan": "1. Move above the alphabet soup to z=35. 2. Lower the gripper to the alphabet soup. 3. Close the gripper to grasp the alphabet soup. 4. Lift it to z=45 to clear surrounding objects. 5. Move above the basket to z=50. 6. release it into the basket while maintaining height.",
+    "executable_plan": [
+        [34, 16, 35, 0, 0, 0, 1],
+        [34, 16, 15, 0, 0, 0, 1],
+        [34, 16, 15, 0, 0, 0, 0],
+        [34, 16, 45, 0, 0, 0, 0],
+        [57, 83, 50, 0, 0, 0, 0],
+        [57, 83, 50, 0, 0, 0, 1]
+    ]
+}""",
+"""Human Instruction: Pick the orange juice and place it in the basket.
+Input: {'object 1': [21, 18, 5], 'object 2': [37, 34, 5], 'object 3': [55, 49, 5], 'object 4': [71, 58, 5], 'object 5': [82, 73, 4], 'object 6': [29, 88, 6]}
+Output: {
+    "visual_state_description": "I can see six labeled objects. Object 1 is a distractor object at [21, 18, 5]. Object 2 is a distractor object at [37, 34, 5]. Object 3 is the target object (orange juice) at [55, 49, 5]. Object 4 is a distractor object at [71, 58, 5]. Object 5 is a distractor object at [82, 73, 4]. Object 6 is the basket at [29, 88, 6].",
+    "reasoning_and_reflection": "The instruction names orange juice, so object 3 is the target and object 6 is the basket. The remaining objects are distractors and should not be semantically guessed. I should pick object 3, lift to avoid collisions, move to object 6, and release.",
+    "language_plan": "1. Move above the orange juice to z=35. 2. Lower the gripper to the orange juice. 3. Close the gripper to grasp it. 4. Lift the orange juice to z=45. 5. Move above the basket to z=50. 6. open the gripper to release it into the basket while maintaining height.",
+    "executable_plan": [
+        [55, 49, 35, 0, 0, 0, 1],
+        [55, 49, 6, 0, 0, 0, 1],
+        [55, 49, 6, 0, 0, 0, 0],
+        [55, 49, 45, 0, 0, 0, 0],
+        [29, 88, 50, 0, 0, 0, 0],
+        [29, 88, 50, 0, 0, 0, 1]
+    ]
+}""",
+"""Human Instruction: Pick the milk and place it in the basket.
+Input: {'object 1': [16, 22, 5], 'object 2': [33, 38, 5], 'object 3': [49, 53, 5], 'object 4': [67, 64, 5], 'object 5': [80, 79, 4], 'object 6': [25, 90, 6]}
+Output: {
+    "visual_state_description": "I can see six labeled objects. Object 1 is a distractor object at [16, 22, 5]. Object 2 is the target object (milk) at [33, 38, 5]. Object 3 is a distractor object at [49, 53, 5]. Object 4 is a distractor object at [67, 64, 5]. Object 5 is a distractor object at [80, 79, 4]. Object 6 is the basket at [25, 90, 6].",
+    "reasoning_and_reflection": "The instruction names milk, so object 2 is the target and object 6 is the basket destination. Other objects are treated as distractors without semantic guessing. A standard pick-and-place trajectory is appropriate.",
+    "language_plan": "1. Move above the milk carton to z=35. 2. Lower the gripper to the milk carton. 3. Close the gripper to grasp the milk carton. 4. Lift it to z=45 to clear clutter. 5. Move above the basket to z=50. 6. release it into the basket while maintaining height.",
+    "executable_plan": [
+        [33, 38, 35, 0, 0, 0, 1],
+        [33, 38, 6, 0, 0, 0, 1],
+        [33, 38, 6, 0, 0, 0, 0],
+        [33, 38, 45, 0, 0, 0, 0],
+        [25, 90, 50, 0, 0, 0, 0],
+        [25, 90, 50, 0, 0, 0, 1]
+    ]
+}""",
+]
+
+libero_spatial_examples = [
+"""Human Instruction: Pick the black bowl next to the plate and place it on the plate.
+Input: {'object 1': [34, 58, 12], 'object 2': [18, 24, 12], 'object 3': [57, 60, 10], 'object 4': [67, 39, 10], 'object 5': [46, 30, 12]}
+Output: {
+    "visual_state_description": "I can see five labeled objects. Object 1 is a black bowl next to the plate at [34, 58, 12]. Object 2 is another black bowl at [18, 24, 12]. Object 3 is the plate at [57, 60, 10]. Object 4 is the ramekin at [67, 39, 10]. Object 5 is the cookies box at [46, 30, 12].",
+    "reasoning_and_reflection": "The instruction specifies the black bowl next to the plate, so object 1 is the target bowl and object 3 is the placement target. The two black bowls look the same, so I must disambiguate strictly by spatial relation and coordinates rather than appearance. Object 2 is a distractor bowl because it does not satisfy the relation. A direct pick and place plan is appropriate.",
+    "language_plan": "1. Move above a side grasp point of the target black bowl with a clearly larger y-offset from the bowl center to z=35. 2. Lower to that side grasp point. 3. Close the gripper to grasp it. 4. Lift to z=45. 5. Move above a clearly larger y-offset point on the plate while maintaining height. 6. Lower slightly and open the gripper to place the bowl on the plate.",
+    "executable_plan": [
+        [34, 68, 35, 0, 0, 0, 1],
+        [34, 68, 15, 0, 0, 0, 1],
+        [34, 68, 15, 0, 0, 0, 0],
+        [34, 68, 45, 0, 0, 0, 0],
+        [57, 73, 45, 0, 0, 0, 0],
+        [57, 73, 20, 0, 0, 0, 1]
+    ]
+}""",
+"""Human Instruction: Pick the black bowl on the stove and place it on the plate.
+Input: {'object 1': [24, 24, 14], 'object 2': [43, 61, 13], 'object 3': [24, 24, 8], 'object 4': [66, 71, 10], 'object 5': [45, 18, 22]}
+Output: {
+    "visual_state_description": "I can see five labeled objects. Object 1 is a black bowl on the stove at [24, 24, 14]. Object 2 is another black bowl at [43, 61, 13]. Object 3 is the stove at [24, 24, 8]. Object 4 is the plate at [66, 71, 10]. Object 5 is the wooden cabinet at [45, 18, 22].",
+    "reasoning_and_reflection": "The relation phrase on the stove selects object 1 as the target bowl, and object 4 is the destination plate. The two black bowls look the same, so target selection must rely on relation grounding and coordinates, not appearance. Object 2 is not on the stove, so it should be ignored. The plan is grasp, lift, transfer, and place on the plate.",
+    "language_plan": "1. Move above a side grasp point of the black bowl on the stove with a clearly larger y-offset from the bowl center to z=35. 2. Lower to that side grasp point. 3. Close the gripper to grasp it. 4. Lift to z=45. 5. Move above a clearly larger y-offset point on the plate while maintaining height. 6. Lower slightly and open the gripper to place the bowl on the plate.",
+    "executable_plan": [
+        [24, 35, 35, 0, 0, 0, 1],
+        [24, 35, 17, 0, 0, 0, 1],
+        [24, 35, 17, 0, 0, 0, 0],
+        [24, 35, 45, 0, 0, 0, 0],
+        [66, 85, 45, 0, 0, 0, 0],
+        [66, 85, 20, 0, 0, 0, 1]
+    ]
+}""",
+]
+
 
 
 # =========================== For old EMBench tasks ===========================
@@ -468,7 +549,9 @@ vlm_examples_RLbench = {
     "stack": stack_examples_RLbench,
     "place": place_examples_RLbench,
     "insert": insert_examples_RLbench,
-    "push": push_examples_RLbench
+    "push": push_examples_RLbench,
+    "libero_object": libero_object_examples,
+    "libero_spatial": libero_spatial_examples,
 }
 
 vlm_examples_baseline = {

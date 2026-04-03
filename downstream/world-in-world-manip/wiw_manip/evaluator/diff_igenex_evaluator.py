@@ -11,6 +11,7 @@ class Diff_Igenex_Evaluator(Diff_Evaluator, Igenex_Evaluator):
     def initialize_planner(self, ic_examples, task_name):
         # almost same as Igenex_Evaluator
         self.planner = DiffIgenexPlanner(
+            backend=self.backend,
             task=task_name,
             model_name=self.model_name,
             model_type=self.config["model_type"],

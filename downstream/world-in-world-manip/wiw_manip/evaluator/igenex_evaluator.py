@@ -1,5 +1,4 @@
 from wiw_manip.evaluator.config.system_prompts import (
-    eb_manipulation_system_prompt,
     genex_revise_manipulation_auxiliary_prompt,
 )
 from wiw_manip.planner.igenex_planner import IgenexPlanner
@@ -13,10 +12,12 @@ class Igenex_Evaluator(VLM_Evaluator):
         self.mpc_mode = config["mpc_mode"]
 
     def initialize_planner(self, ic_examples, task_name):
+        system_prompt = self._get_system_prompt(task_name)
         self.planner = IgenexPlanner(
+            backend=self.backend,
             model_name=self.model_name,
             model_type=self.config["model_type"],
-            system_prompt=eb_manipulation_system_prompt,
+            system_prompt=system_prompt,
             revise_aux_prompt=genex_revise_manipulation_auxiliary_prompt,
             examples=ic_examples,
             n_shot=self.config["n_shots"],
@@ -36,4 +37,5 @@ class Igenex_Evaluator(VLM_Evaluator):
             },
             pred_img_size=self.config["pred_img_size"],
             exp_name=self.config.get("exp_name", None),
+            wm_condition_mode=self.config.get("wm_condition_mode", "zero_shot_text"),
         )

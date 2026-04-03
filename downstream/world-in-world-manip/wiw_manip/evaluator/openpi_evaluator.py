@@ -5,7 +5,10 @@ import numpy as np
 class Openpi_Evaluator(VLM_Evaluator):
         
     def initialize_planner(self, ic_examples, task_name):
-        self.planner = OpenpiPlanner(task_name)
+        self.planner = OpenpiPlanner(
+            backend=self.backend,
+            task=task_name,
+        )
         
     def act(self, img_path_list, image_history, user_instruction, avg_obj_coord, obs, img_path_list_origin=None):
         return self.planner.act(curr_obs=obs, user_instruction=user_instruction)
