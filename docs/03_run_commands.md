@@ -213,44 +213,39 @@ CUDA_VISIBLE_DEVICES="0" bash scripts/run_manip.sh \
     - `vlm-igenex`: VLM planner with world model
     - `diff-base`: diffuser actor without world model
     - `diff-igenex`: diffuser actor with world model
+    - `openpi-base`: OpenPI proposer without world model
+    - `openpi-igenex`: OpenPI proposer with world model
 - `<model_name>`: name of VLM used by the VLM planner (e.g., `Qwen/Qwen2.5-VL-72B-Instruct-AWQ`)
 - `<num_workers>`: number of parallel workers for evaluation
 - `<vllm_hosts>`: hostname and port for vLLM server (same format as other tasks, e.g., `localhost:8010`)
 - `<igenex_host>`: host for world model server (same format as other tasks, e.g., `localhost:6010`)
 
-**LIBERO prerequisite:** start LIBERO env server first (in `downstream/world-in-world-manip`):
-```bash
-source .venv-libero/bin/activate
-export LIBERO_CONFIG_PATH=/path/to/world-in-world/.cache/libero
-export PYTHONPATH=$PYTHONPATH:/path/to/world-in-world/third_party/libero:/path/to/world-in-world/downstream/world-in-world-manip
-bash scripts/run_libero_env_server.sh 127.0.0.1 8765
-```
+**LIBERO prerequisite:** start LIBERO env server first (see [Start LIBERO environment server](01_setup_env.md#Start-LIBERO-environment-server)).
 
-**Example A (`vlm-base`, no world model)**
+**OpenPI prerequisite:** start OpenPI proposer server first (see [Start OpenPI proposer server](01_setup_env.md#Start-OpenPI-proposer-server)).
+
+### Manip — example
+
+**Example A (run `vlm-base`, no world model)**
 ```bash
 CUDA_VISIBLE_DEVICES="0" bash scripts/run_manip.sh \
     vlm-base \
-    09.12_libero_base \
+    09.12_qwen_base \
     Qwen/Qwen2.5-VL-72B-Instruct-AWQ \
     1 \
     "localhost:8010" \
-    "localhost:7000" \
-    manip_backend=libero \
-    libero_env_url=http://127.0.0.1:8765 \
-    down_sample_ratio=0.02 \
-    n_shots=2 \
-    'eval_sets=[libero_object]'
+    "localhost:6010"
 ```
-To run spatial instead of object, change `eval_sets` to `'eval_sets=[libero_spatial]'`.
 
-**Example B (`vlm-igenex`, with world model)**
+**Example B (run `vlm-igenex`, with world model and libero tasks)**
 
 Start a world model manager first (from repo root):
 ```bash
-CUDA_VISIBLE_DEVICES="0,1" bash downstream/scripts/init_worldmodel_manager.sh \
+CUDA_VISIBLE_DEVICES="0" bash downstream/scripts/init_worldmodel_manager.sh \
     09.12_libero_wm \
-    2 \
-    <wm_type> \
+    1 \
+    svd \
+    6010
     --task_type=manipulation
 ```
 
@@ -262,15 +257,11 @@ CUDA_VISIBLE_DEVICES="0" bash scripts/run_manip.sh \
     Qwen/Qwen2.5-VL-72B-Instruct-AWQ \
     1 \
     "localhost:8010" \
-    "localhost:7000" \
+    "localhost:6010" \
     manip_backend=libero \
     libero_env_url=http://127.0.0.1:8765 \
     wm_condition_mode=zero_shot_text \
-    down_sample_ratio=0.02 \
-    n_shots=2 \
-    'eval_sets=[libero_object]'
 ```
-To run spatial instead of object, change `eval_sets` to `'eval_sets=[libero_spatial]'`.
 
 ---
 

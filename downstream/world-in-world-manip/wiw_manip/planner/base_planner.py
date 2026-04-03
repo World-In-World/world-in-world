@@ -1,5 +1,6 @@
 class BasePlanner:
-    def __init__(self, **kwargs):
+    def __init__(self, backend, **kwargs):
+        self.backend = backend
         if kwargs:
             print("***Warning: Planner base class received unused arguments:", kwargs)
         pass

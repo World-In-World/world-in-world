@@ -9,7 +9,7 @@ from typing import Any, Dict, List
 from numpy.typing import NDArray
 from torch import Tensor
 from jaxtyping import Float, Int32, UInt8
-from wiw_manip.envs.eb_man_utils import (
+from wiw_manip.envs.utils import (
     get_continous_action_from_discrete,
     get_continous_action_from_discrete_batch,
 )
@@ -119,7 +119,7 @@ class IgenexPlanner(VLMPlanner):
         mode_raw = self.wm_condition_mode
         mode = str(mode_raw).strip().lower()
 
-        # Prefer explicit configuration, but keep legacy behavior compatible.
+        # Prefer explicit configuration
         if mode not in {"", "none", "null"}:
             if mode in {"zero_shot_text", "zero-shot-text", "zero_shot", "text", "fttext"}:
                 # For this migration stage, both text / FTtext are routed through text-conditioned path.
@@ -131,17 +131,24 @@ class IgenexPlanner(VLMPlanner):
                 return
 
             if mode in {"action", "action_conditioned", "action-conditioned"}:
-                raise NotImplementedError(
-                    "wm_condition_mode='action' is temporarily disabled for LIBERO migration. "
-                    "Please use wm_condition_mode='zero_shot_text'."
+                if self.backend == "libero":
+                    raise NotImplementedError(
+                        "wm_condition_mode='action' is temporarily disabled for LIBERO migration. "
+                        "Please use wm_condition_mode='zero_shot_text'."
+                    )
+                self.world_model_type = "action"
+                logger.info(
+                    "World model condition mode: %s -> action-conditioned WM",
+                    self.wm_condition_mode,
                 )
+                return
 
             raise ValueError(
                 f"Unsupported wm_condition_mode: {self.wm_condition_mode}. "
-                "Supported: ['zero_shot_text'] (action-conditioned mode is temporarily disabled)."
+                "Supported: ['zero_shot_text', 'action']."
             )
 
-        # Legacy fallback: infer from exp_name keywords (keeps old architecture style).
+        # Fallback: infer from name of worldmodel in exp name
         world_model_type = None
         exp_id = str(self.exp_id) if self.exp_id is not None else ""
         for type_name, models in WORLD_MODEL_TYPES.items():
@@ -157,12 +164,8 @@ class IgenexPlanner(VLMPlanner):
             self.world_model_type = "text"
             return
 
-        if world_model_type == "action":
-            raise NotImplementedError(
-                "Legacy exp_name inference resolved to action-conditioned WM, "
-                "which is temporarily disabled for LIBERO migration. "
-                "Please set wm_condition_mode=zero_shot_text or use a zero-shot model exp_name."
-            )
+        if world_model_type == "action" and self.backend == "libero":
+            raise NotImplementedError("action conditioned WM is temporarily disabled for LIBERO migration. Please use text-conditioned WM.")
 
         logger.warning(
             "World model type is not specified/inferred. Defaulting to text-conditioned zero-shot WM."
@@ -180,7 +183,7 @@ class IgenexPlanner(VLMPlanner):
         }
         self.st = State(list(all_keys))
 
-    def gen_pred_image(self, curr_obs, obs_path, action_plans, text_plans, curr_pose, task_variation):
+    def gen_pred_image(self, curr_obs, obs_path, action_plans, text_plans, curr_pose):
         text_plans = [plan["language_plan"] for plan in text_plans]
         batch_action_plans = [get_continous_action_from_discrete_batch(plan) for plan in action_plans]
         B = len(batch_action_plans)
@@ -188,7 +191,7 @@ class IgenexPlanner(VLMPlanner):
         batch_action_plans_, anchor_idx_lists = self._construct_action_seqs(
             curr_pose, batch_action_plans, out_seq_len=14
         )
-        image: Float[Tensor, "B C H W"] = curr_obs.unsqueeze(0).repeat(B, 1, 1, 1) 
+        image: Float[Tensor, "B C H W"] = curr_obs.unsqueeze(0).repeat(B, 1, 1, 1)
         image: UInt8[Tensor, "B C H W"] = (image * 255.0).to(torch.uint8)  # convert to uint8
 
         # * 2. Generate frames for the all actions with batch
@@ -618,7 +621,7 @@ class IgenexPlanner(VLMPlanner):
             curr_obs_origin = st.fetch_current_state_obs(self.obs_origin_key)
             obs_path = st.get_from_history(self.obs_origin_key)[-1]
             pred_obs_paths = self.gen_pred_image(
-                curr_obs_origin, obs_path, revised_plans, revised_reasons, curr_pose, task_variation,
+                curr_obs_origin, obs_path, revised_plans, revised_reasons, curr_pose
             )
             st.add_to_recent_state(
                 pred_obs_paths, self.imagine_obs_key, mode="extend"         #2

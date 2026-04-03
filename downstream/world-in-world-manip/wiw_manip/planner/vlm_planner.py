@@ -8,7 +8,7 @@ import random
 import time
 import os
 import datetime as _dt
-from wiw_manip.envs.eb_man_utils import ROTATION_RESOLUTION, VOXEL_SIZE
+from wiw_manip.envs.utils import ROTATION_RESOLUTION, VOXEL_SIZE
 from wiw_manip.planner.utils.remote_model import RemoteModel
 from wiw_manip.planner.utils.custom_model import CustomModel
 from wiw_manip.planner.base_planner import BasePlanner
@@ -171,13 +171,17 @@ class VLMPlanner(BasePlanner):
             return "spatial"
         return None
 
-    def _get_manip_template(self, task_variation: str) -> str:
-        family = self._libero_task_family(task_variation)
-        if family == "object":
-            return template_manip_libero
-        if family == "spatial":
-            return template_manip_libero_spatial
-        return template_manip
+    def _get_manip_template(self, task_variation=None) -> str:
+        if self.backend == "libero":
+            family = self._libero_task_family(task_variation)
+            if family == "object":
+                return template_manip_libero
+            elif family == "spatial":
+                return template_manip_libero_spatial
+            else:
+                raise ValueError(f"Unknown task variation {task_variation} for libero backend.")
+        elif self.backend == "rlbench":
+            return template_manip
     # ---------------- Prompt Construction Helpers ----------------
 
     def process_prompt_visual_icl(self, user_instruction, avg_obj_coord, prev_act_feedback=[]):

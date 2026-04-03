@@ -1,10 +1,11 @@
 import numpy as np
 
-from wiw_manip.envs.RLBenchEnv import RLBenchEnv, VALID_TASKS
+from wiw_manip.envs.RLBenchEnv import RLBenchEnv
 from wiw_manip.envs.LiberoEnv import LiberoEnv
 from wiw_manip.evaluator.config.eb_manipulation_example import vlm_examples_RLbench
 from wiw_manip.main import logger
-from wiw_manip.envs.eb_man_utils import (
+from wiw_manip.envs.utils import (
+    RLBENCH_VALID_TASKS,
     LIBERO_VALID_TASKS,
     describe_discrete_action_conversion,
     get_continous_action_from_discrete,
@@ -13,19 +14,17 @@ from wiw_manip.evaluator.base_evaluator import Base_Evaluator
 
 class VLM_Evaluator(Base_Evaluator):
     def __init__(self, config):
+        super().__init__(config)
         self.model_name = config['model_name']
-        self.config = config
-        self.env = None
-        self.planner = None
 
     def env_reset(self):
         return self.env.reset()
 
     def env_step(self, action):
-        backend_is_libero = self._get_backend() == "libero"
-        if backend_is_libero:
+        if self.backend == "libero":
             discrete_action = [int(x) for x in action]
-            action, debug_payload = describe_discrete_action_conversion(
+            # action, debug_payload = describe_discrete_action_conversion(
+            action = describe_discrete_action_conversion(
                 discrete_action,
                 bounds=self.env.scene_bounds,
                 flip_y=False,
@@ -37,32 +36,32 @@ class VLM_Evaluator(Base_Evaluator):
                 if quat_norm > 1e-8:
                     curr_quat = curr_quat / quat_norm
                     action[3:7] = curr_quat
-                    debug_payload["rotation_override"] = (
-                        "all-zero-rpy -> use current eef quaternion from env reset/last step"
-                    )
-                    debug_payload["target_quaternion_xyzw"] = curr_quat.astype(float).tolist()
-            obs, reward, done, info = self.env.step(action, debug_payload=debug_payload)
-        else:
+                    # debug_payload["rotation_override"] = (
+                    #     "all-zero-rpy -> use current eef quaternion from env reset/last step"
+                    # )
+                    # debug_payload["target_quaternion_xyzw"] = curr_quat.astype(float).tolist()
+            # obs, reward, done, info = self.env.step(action, debug_payload=debug_payload)
+            obs, reward, done, info = self.env.step(action)
+        elif self.backend == "rlbench":
             action = get_continous_action_from_discrete(
                 action,
                 bounds=self.env.scene_bounds,
                 flip_y=False,
             )
             obs, reward, done, info = self.env.step(action)
+        else:
+            raise ValueError(f"Unsupported backend: {self.backend}")
         return obs, reward, done, info
 
-    def _get_backend(self):
-        return self.config.get("manip_backend", "rlbench")
-
     def _get_env_class(self):
-        if self._get_backend() == "libero":
+        if self.backend == "libero":
             return LiberoEnv
         return RLBenchEnv
 
     def _get_eval_tasks(self):
-        if self._get_backend() == "libero":
+        if self.backend == "libero":
             return LIBERO_VALID_TASKS
-        return VALID_TASKS
+        return RLBENCH_VALID_TASKS
 
     @staticmethod
     def _normalize_eval_sets(eval_sets):
@@ -73,7 +72,7 @@ class VLM_Evaluator(Base_Evaluator):
         return [str(item) for item in eval_sets if str(item)]
 
     def _resolve_eval_tasks(self, tasks=None):
-        backend = self._get_backend()
+        backend = self.backend
         if tasks is not None:
             resolved = [str(item) for item in tasks]
         else:
@@ -98,7 +97,7 @@ class VLM_Evaluator(Base_Evaluator):
     def evaluate_main(self, tasks=None):
         tasks = self._resolve_eval_tasks(tasks)
         env_class = self._get_env_class()
-        backend = self._get_backend()
+        backend = self.backend
         logger.info("Resolved eval tasks: %s", tasks)
         for i, eval_set in enumerate(tasks):
             self.eval_task = eval_set
@@ -149,12 +148,12 @@ class VLM_Evaluator(Base_Evaluator):
 
     def load_demonstration(self):
         all_examples = {}
-        if self._get_backend() == "libero":
+        if self.backend == "libero":
             for task in LIBERO_VALID_TASKS:
                 all_examples[task] = vlm_examples_RLbench.get(task, None)
             return all_examples
 
-        for task in VALID_TASKS:
+        for task in RLBENCH_VALID_TASKS:
             all_examples[task] = vlm_examples_RLbench.get(task.split('_')[0], None)
 
         return all_examples

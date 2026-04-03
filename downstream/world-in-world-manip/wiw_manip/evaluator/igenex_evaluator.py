@@ -14,6 +14,7 @@ class Igenex_Evaluator(VLM_Evaluator):
     def initialize_planner(self, ic_examples, task_name):
         system_prompt = self._get_system_prompt(task_name)
         self.planner = IgenexPlanner(
+            backend=self.backend,
             model_name=self.model_name,
             model_type=self.config["model_type"],
             system_prompt=system_prompt,

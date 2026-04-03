@@ -1,16 +1,16 @@
-from wiw_manip.evaluator.diff_evaluator import Diff_Evaluator
+from wiw_manip.evaluator.openpi_evaluator import Openpi_Evaluator
 from wiw_manip.evaluator.igenex_evaluator import Igenex_Evaluator
-from wiw_manip.planner.diff_igenex_planner import DiffIgenexPlanner
+from wiw_manip.planner.openpi_igenex_planner import OpenpiIgenexPlanner
 from wiw_manip.evaluator.config.system_prompts import (
     eb_manipulation_system_prompt,
     genex_revise_manipulation_auxiliary_prompt,
 )
 
-class Diff_Igenex_Evaluator(Diff_Evaluator, Igenex_Evaluator):
-        
+class Openpi_Igenex_Evaluator(Openpi_Evaluator, Igenex_Evaluator):
+
     def initialize_planner(self, ic_examples, task_name):
         # almost same as Igenex_Evaluator
-        self.planner = DiffIgenexPlanner(
+        self.planner = OpenpiIgenexPlanner(
             backend=self.backend,
             task=task_name,
             model_name=self.model_name,
@@ -39,7 +39,6 @@ class Diff_Igenex_Evaluator(Diff_Evaluator, Igenex_Evaluator):
         
     def act(self, img_path_list, image_history, user_instruction, avg_obj_coord, obs, img_path_list_origin=None):
         ret = self.planner.act(
-            gripper_history=self.gripper_history,
             img_path_list_anno=img_path_list,
             user_instruction=user_instruction,
             avg_obj_coord=str(avg_obj_coord),

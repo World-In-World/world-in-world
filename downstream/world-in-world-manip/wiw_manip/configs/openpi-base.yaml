@@ -2,27 +2,25 @@
 defaults:
   - /config          # load configs/config.yaml
   - _self_
-
-env: vlm-base
+  
+env: openpi-base
 model_name: gpt-4o-mini
 model_type: remote
 down_sample_ratio: 1
-language_only: 0
+language_only: 1
 eval_sets: []
 chat_history: 0
-n_shots: 1
+n_shots: 2
 multiview: 0
 detection_box: 1
 multistep: 0
 resolution: 500
-exp_name: 06.26_baseline_debug
+exp_name: 12.22_openpi_debug
 visual_icl: 0
 tp: 1
 proposal_num: 1
-executed_action_per_step: 6
+executed_action_per_step: 50
 use_last_action: False
 enable_path_obs: False
-max_step: 12
-manip_backend: rlbench
-libero_env_url: http://127.0.0.1:8765
-libero_action_repeat: 100
+max_step: 200
+openpi_host: "localhost:8011"

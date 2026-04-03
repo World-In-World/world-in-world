@@ -185,3 +185,7 @@ class LiberoEnv:
 
     def get_annotation_points(self, camera_type):
         return self._annotation_points.get(camera_type)
+
+    def save_action_plan(self, actions, post_fix) -> str:
+        # Not implemented yet
+        pass

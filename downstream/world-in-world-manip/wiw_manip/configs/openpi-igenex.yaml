@@ -1,9 +1,8 @@
-# configs/EB-Navigation.yaml
 defaults:
   - /config          # load configs/config.yaml
   - _self_
-
-env: vlm-base
+  
+env: openpi-igenex
 model_name: gpt-4o-mini
 model_type: remote
 down_sample_ratio: 1
@@ -15,14 +14,15 @@ multiview: 0
 detection_box: 1
 multistep: 0
 resolution: 500
-exp_name: 06.26_baseline_debug
+exp_name: 12.22_openpi_igenex_debug
 visual_icl: 0
 tp: 1
-proposal_num: 1
-executed_action_per_step: 6
+executed_action_per_step: 15
 use_last_action: False
-enable_path_obs: False
-max_step: 12
-manip_backend: rlbench
-libero_env_url: http://127.0.0.1:8765
-libero_action_repeat: 100
+proposal_num: 4
+igenex_host: localhost:6011
+pred_img_size: 384
+mpc_mode: ranking  # "iterative" or "ranking"
+enable_path_obs:  False
+max_step: 200
+openpi_host: "localhost:8011"
